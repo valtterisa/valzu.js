@@ -1,0 +1,13 @@
+{
+  "name": "create-valzu-app",
+  "version": "1.0.0",
+  "description": "CLI tool to generate new Valzu.js projects",
+  "bin": {
+    "create-valzu-app": "./bin/create-valzu-app"
+  },
+  "dependencies": {
+    "fs-extra": "^10.0.0"
+  },
+  "type": "module",
+  "license": "MIT"
+}

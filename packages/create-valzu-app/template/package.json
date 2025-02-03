@@ -1,0 +1,11 @@
+{
+  "name": "valzu-app",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "node src/server.js",
+    "build": "node generate.js"
+  },
+  "dependencies": {
+    "valzu-core": "^1.0.0"
+  }
+}

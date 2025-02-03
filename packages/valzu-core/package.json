@@ -1,0 +1,19 @@
+{
+  "name": "valzu-core",
+  "version": "1.0.0",
+  "description": "Core rendering and state management for Valzu.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.5"
+  },
+  "type": "module",
+  "license": "MIT"
+}
