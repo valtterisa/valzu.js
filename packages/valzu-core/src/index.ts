@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import fs from "fs";
 import path from "path";
 
@@ -52,9 +52,9 @@ export function createServer(routes: { path: string; component?: any }[]) {
   app.use(express.json());
   app.use(express.static("public"));
 
-  routes.forEach(({ path, component }) => {
+  routes.forEach(({ path: routePath, component }) => {
     if (component) {
-      app.get(path, async (req, res) => {
+      app.get(routePath, async (req: Request, res: Response) => {
         let appHtml = "";
         if (typeof component === "function") {
           const data = component.getServerData

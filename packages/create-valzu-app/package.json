@@ -6,7 +6,8 @@
     "create-valzu-app": "./bin/create-valzu-app"
   },
   "dependencies": {
-    "fs-extra": "^10.0.0"
+    "fs-extra": "^10.0.0",
+    "valzu-core": "^1.0.0"
   },
   "type": "module",
   "license": "MIT"
