@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@types/express": "^5.0.0",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "tsx": "^4.19.2"
   },
   "devDependencies": {
     "typescript": "^4.9.5"

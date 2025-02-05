@@ -1,11 +1,14 @@
 {
   "name": "valzu-app",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
-    "dev": "node src/server.js",
+    "dev": "tsx -r valzu-core",
     "build": "node generate.js"
   },
   "dependencies": {
-    "valzu-core": "^1.0.0"
+    "valzu-core": "file:C:/Users/Valtteri/Documents/VERKKOSIVUT/valzu.js/packages/valzu-core",
+    "tsx": "^4.6.2",
+    "typescript": "^4.9.5"
   }
 }
