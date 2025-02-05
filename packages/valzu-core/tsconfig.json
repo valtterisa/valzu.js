@@ -1,14 +1,13 @@
 {
   "compilerOptions": {
-    "target": "ES6",
-    "module": "ESNext",
+    "target": "es2019",
+    "module": "commonjs",
     "outDir": "./dist",
     "rootDir": "./src",
-    "strict": true,
     "declaration": true,
+    "jsx": "react",
     "esModuleInterop": true,
-    "moduleResolution": "node",
-    "types": ["node", "express"]
+    "strict": true
   },
   "include": ["src"]
 }

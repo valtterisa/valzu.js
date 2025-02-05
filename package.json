@@ -1,0 +1,15 @@
+{
+  "name": "valzu.js",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "publish:core": "cd packages/valzu-core && npm publish --access public",
+    "publish:cli": "cd packages/create-valzu-app && npm publish --access public",
+    "publish:all": "npm run publish:core && npm run publish:cli"
+  },
+  "devDependencies": {
+    "lerna": "^4.0.0"
+  }
+}

@@ -1,24 +1,45 @@
-#!/usr/bin/env node
-import fs from "fs-extra";
-import path from "path";
-import { execSync } from "child_process";
-import { fileURLToPath } from "url";
+// packages/create-valzu-app/src/cli.ts
+import * as fs from "fs";
+import * as path from "path";
 
-const projectName = process.argv[2] || "valzu-app";
-const projectPath = path.join(process.cwd(), projectName);
+function copyRecursiveSync(src: string, dest: string) {
+  if (fs.existsSync(src)) {
+    const stats = fs.statSync(src);
+    if (stats.isDirectory()) {
+      if (!fs.existsSync(dest)) {
+        fs.mkdirSync(dest);
+      }
+      const files = fs.readdirSync(src);
+      files.forEach((file) => {
+        const curSource = path.join(src, file);
+        const curDest = path.join(dest, file);
+        copyRecursiveSync(curSource, curDest);
+      });
+    } else {
+      fs.copyFileSync(src, dest);
+    }
+  }
+}
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+function createProject(projectName: string) {
+  const templatePath = path.resolve(__dirname, "../template");
+  const targetPath = path.resolve(process.cwd(), projectName);
 
-const templatePath = path.join(__dirname, "../template");
+  if (fs.existsSync(targetPath)) {
+    console.error(`❌ Project directory "${projectName}" already exists.`);
+    process.exit(1);
+  }
 
-console.log(`🚀 Creating Valzu.js project: ${projectName}...`);
-fs.copySync(templatePath, projectPath);
+  copyRecursiveSync(templatePath, targetPath);
+  console.log(`✅ Project "${projectName}" created successfully!`);
+}
 
-console.log("📦 Installing dependencies...");
-execSync(`cd ${projectPath} && npm install`, { stdio: "inherit" });
+// Simple CLI argument parsing
+const args = process.argv.slice(2);
+if (args.length < 1) {
+  console.error("Usage: create-valzu-app <project-name>");
+  process.exit(1);
+}
 
-console.log(`✅ Setup complete!`);
-console.log(`\nRun your project:\n`);
-console.log(`  cd ${projectName}`);
-console.log(`  npm run dev`);
+const projectName = args[0];
+createProject(projectName);
