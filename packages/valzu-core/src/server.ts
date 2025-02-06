@@ -1,13 +1,31 @@
-import express from "express";
-import fs from "fs";
-import path from "path";
+const express = require("express");
+const fs = require("fs");
+const path = require("path");
 import { renderToString } from "./utils";
+import { Request, Response } from "express";
 
-export function createServer() {
+export interface ServerOptions {
+  pagesDir?: string;
+  publicDir?: string;
+  port?: number;
+}
+
+/**
+ * Starts the Express server.
+ * @param options Optional configuration object.
+ */
+export function createServer(options?: ServerOptions): void {
+  // Create an Express app instance.
   const app = express();
-  const cwd = process.cwd(); // Assumes user’s project root is current working directory
-  const pagesDir = path.resolve(cwd, "src/pages");
-  const publicDir = path.resolve(cwd, "public");
+  const cwd = process.cwd();
+
+  // Determine the directories to use.
+  const pagesDir = options?.pagesDir
+    ? path.resolve(options.pagesDir)
+    : path.resolve(cwd, "src/pages");
+  const publicDir = options?.publicDir
+    ? path.resolve(options.publicDir)
+    : path.resolve(cwd, "public");
 
   if (!fs.existsSync(pagesDir)) {
     console.error(`❌ Pages directory not found at ${pagesDir}`);
@@ -17,16 +35,15 @@ export function createServer() {
   // Automatically register routes based on page files (.ts or .tsx)
   const pageFiles = fs
     .readdirSync(pagesDir)
-    .filter((file) => /\.(ts|tsx)$/.test(file));
+    .filter((file: any) => /\.(ts|tsx)$/.test(file));
 
-  pageFiles.forEach((file) => {
+  pageFiles.forEach((file: any) => {
     const pageName = file.replace(/\.(ts|tsx)$/, "");
     const routePath = pageName === "index" ? "/" : `/${pageName}`;
 
-    app.get(routePath, async (req, res) => {
+    app.get(routePath, async (req: Request, res: Response) => {
       try {
         const modulePath = path.join(pagesDir, file);
-        // Dynamically import the page module (in production, pages should be pre-compiled)
         const { default: Component } = await import(modulePath);
         if (!Component) {
           throw new Error(`Component not found in ${file}`);
@@ -53,11 +70,13 @@ export function createServer() {
     });
   });
 
+  // Serve static files from the public directory.
   app.use(express.static(publicDir));
   app.use("/client.js", express.static(path.resolve(cwd, "dist/client.js")));
 
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`✅ Valzu server running on http://localhost:${PORT}`);
+  // Determine the port and start listening.
+  const port = options?.port || Number(process.env.PORT) || 3000;
+  app.listen(port, () => {
+    console.log(`✅ Valzu server running on http://localhost:${port}`);
   });
 }

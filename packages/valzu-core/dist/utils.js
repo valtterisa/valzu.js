@@ -1,17 +1,13 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.hydrate = exports.renderToString = exports.createElement = void 0;
 /**
  * Create JSX-like elements.
  */
-function createElement(type, props = {}, ...children) {
+export function createElement(type, props = {}, ...children) {
     return { type, props, children };
 }
-exports.createElement = createElement;
 /**
  * Render a virtual DOM node (or tree) to an HTML string.
  */
-function renderToString(vnode) {
+export function renderToString(vnode) {
     if (typeof vnode === "string")
         return vnode;
     const propsString = vnode.props
@@ -24,12 +20,11 @@ function renderToString(vnode) {
         : "";
     return `<${vnode.type}${propsString ? " " + propsString : ""}>${childrenString}</${vnode.type}>`;
 }
-exports.renderToString = renderToString;
 /**
  * Hydrate the server-rendered content by binding events
  * from the virtual DOM (vDOM) to the actual DOM.
  */
-function hydrate(container) {
+export function hydrate(container) {
     if (!container) {
         console.error("❌ Hydration failed: container not found");
         return;
@@ -104,4 +99,3 @@ function hydrate(container) {
     });
     console.log("✅ Hydration complete!");
 }
-exports.hydrate = hydrate;
