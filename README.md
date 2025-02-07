@@ -1,6 +1,3 @@
-Below is the complete `README.md` in Markdown format. You can copy and save it as `README.md` in your repository:
-
-````markdown
 # Valzu.js
 
 **Valzu.js** is an open-source, lightweight full‑stack framework built with TypeScript and ES modules. It supports server‑side rendering with file‑based routing and client‑side hydration—allowing you to build modern, dynamic web applications with minimal configuration.
@@ -38,6 +35,7 @@ After publishing, you can create a new Valzu.js project using [npx](https://docs
 ```bash
 npx create-valzu-app my-new-app
 ```
+
 ````
 
 This command will:
@@ -94,10 +92,10 @@ my-new-app/
    npm run dev
    ```
 
-   - **Client:**  
+   - **Client:**
      Esbuild watches your `src/client.tsx` file and rebuilds your client bundle (located in a hidden folder like `.build` or `dist`, based on your configuration) whenever changes are made.
 
-   - **Server:**  
+   - **Server:**
      Nodemon with ts‑node watches your server code and restarts the server automatically on changes.
 
 4. **View Your App:**
@@ -197,13 +195,13 @@ This allows your application to load and apply the styles when the HTML is serve
 
 You can host your full‑stack application on various platforms, such as:
 
-- **Heroku:**  
+- **Heroku:**
   Great for Node.js servers with simple Git-based deployments.
-- **Vercel or Netlify:**  
+- **Vercel or Netlify:**
   Excellent for static and hybrid apps; can also deploy serverless functions.
-- **Cloud Providers:**  
+- **Cloud Providers:**
   AWS, GCP, or Azure provide full control over scaling and infrastructure.
-- **Containers:**  
+- **Containers:**
   Use Docker and Kubernetes or Docker Compose for container-based deployments.
 
 Refer to your chosen platform’s documentation for specific deployment instructions.
@@ -212,11 +210,11 @@ Refer to your chosen platform’s documentation for specific deployment instruct
 
 ## Troubleshooting
 
-- **ESM vs. CommonJS:**  
+- **ESM vs. CommonJS:**
   Ensure that your `package.json` in `valzu-core` contains `"type": "module"` so that the built files are treated as ES modules.
-- **Dynamic Imports on Windows:**  
+- **Dynamic Imports on Windows:**
   If you encounter errors regarding file URL schemes (e.g., `ERR_UNSUPPORTED_ESM_URL_SCHEME`), convert absolute paths to file URLs using `pathToFileURL` from the `url` module.
-- **Dependency Issues:**  
+- **Dependency Issues:**
   If you have issues with CommonJS modules in an ES module environment, ensure that `"esModuleInterop": true` and `"allowSyntheticDefaultImports": true` are set in your tsconfig.
 
 ---
@@ -236,6 +234,4 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 Happy coding with Valzu.js!
 
 ```
-
-You can now copy this Markdown text and paste it into your `README.md` file. Adjust any sections as needed for your project. Happy coding and publishing!
-```
+````
