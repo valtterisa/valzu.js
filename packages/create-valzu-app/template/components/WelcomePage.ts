@@ -13,8 +13,9 @@ export default function WelcomePage() {
     ),
     createElement(
       "a",
-      { href: "https://github.com/your-username/valzu.js", target: "_blank" },
+      { href: "https://github.com/valtterisa/valzu.js", target: "_blank" },
       "📖 Read the Docs"
-    )
+    ),
+    createElement("a", { href: "/about", target: "_self" }, "📖 About")
   );
 }

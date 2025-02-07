@@ -5,6 +5,7 @@
     "packages/*"
   ],
   "scripts": {
+    "build:all": "cd packages/valzu-core && npm run build && cd ../create-valzu-app && npm run build",
     "publish:core": "cd packages/valzu-core && npm publish --access public",
     "publish:cli": "cd packages/create-valzu-app && npm publish --access public",
     "publish:all": "npm run publish:core && npm run publish:cli"
