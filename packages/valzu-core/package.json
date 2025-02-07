@@ -4,9 +4,10 @@
   "type": "module",
   "main": "dist/server.js",
   "browser": "dist/client.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "build:server": "tsc --project tsconfig.server.json",
-    "build:client": "tsc --project tsconfig.client.json",
+    "build:server": "tsc --project tsconfig.json",
+    "build:client": "tsc --project tsconfig.json",
     "build": "npm run build:server && npm run build:client"
   },
   "dependencies": {

@@ -8,7 +8,7 @@
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
     "build:client": "esbuild src/client.tsx --bundle --minify --outfile=.build/client.js --format=esm --platform=browser --external:fs --external:path --external:net --external:http --external:events --external:url --external:querystring --external:zlib --external:crypto --external:stream --external:util",
     "build": "npm run build:client",
-    "start": "node src/server.ts"
+    "start": "node --loader ts-node/esm src/server.ts"
   },
   "dependencies": {
     "valzu-core": "^1.0.1",

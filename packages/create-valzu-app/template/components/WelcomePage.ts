@@ -1,4 +1,4 @@
-import { createElement } from "valzu-core";
+import { createElement } from "valzu-core/dist/utils";
 
 export default function WelcomePage() {
   return createElement(

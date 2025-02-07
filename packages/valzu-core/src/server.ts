@@ -1,6 +1,7 @@
-const express = require("express");
-const fs = require("fs");
-const path = require("path");
+import express from "express";
+import fs from "fs";
+import path from "path";
+import { pathToFileURL } from "url"; // <-- Import pathToFileURL
 import { renderToString } from "./utils";
 import { Request, Response } from "express";
 
@@ -35,16 +36,18 @@ export function createServer(options?: ServerOptions): void {
   // Automatically register routes based on page files (.ts or .tsx)
   const pageFiles = fs
     .readdirSync(pagesDir)
-    .filter((file: any) => /\.(ts|tsx)$/.test(file));
+    .filter((file: string) => /\.(ts|tsx)$/.test(file));
 
-  pageFiles.forEach((file: any) => {
+  pageFiles.forEach((file: string) => {
     const pageName = file.replace(/\.(ts|tsx)$/, "");
     const routePath = pageName === "index" ? "/" : `/${pageName}`;
 
     app.get(routePath, async (req: Request, res: Response) => {
       try {
         const modulePath = path.join(pagesDir, file);
-        const { default: Component } = await import(modulePath);
+        // Convert the absolute path to a file URL for ESM dynamic import
+        const moduleUrl = pathToFileURL(modulePath).href;
+        const { default: Component } = await import(moduleUrl);
         if (!Component) {
           throw new Error(`Component not found in ${file}`);
         }

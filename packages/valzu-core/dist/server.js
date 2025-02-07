@@ -1,15 +1,13 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createServer = void 0;
-const express = require("express");
-const fs = require("fs");
-const path = require("path");
-const utils_1 = require("./utils");
+import express from "express";
+import fs from "fs";
+import path from "path";
+import { pathToFileURL } from "url"; // <-- Import pathToFileURL
+import { renderToString } from "./utils";
 /**
  * Starts the Express server.
  * @param options Optional configuration object.
  */
-function createServer(options) {
+export function createServer(options) {
     // Create an Express app instance.
     const app = express();
     const cwd = process.cwd();
@@ -32,15 +30,16 @@ function createServer(options) {
         const pageName = file.replace(/\.(ts|tsx)$/, "");
         const routePath = pageName === "index" ? "/" : `/${pageName}`;
         app.get(routePath, async (req, res) => {
-            var _a;
             try {
                 const modulePath = path.join(pagesDir, file);
-                const { default: Component } = await (_a = modulePath, Promise.resolve().then(() => require(_a)));
+                // Convert the absolute path to a file URL for ESM dynamic import
+                const moduleUrl = pathToFileURL(modulePath).href;
+                const { default: Component } = await import(moduleUrl);
                 if (!Component) {
                     throw new Error(`Component not found in ${file}`);
                 }
                 const vnode = Component();
-                const appHtml = (0, utils_1.renderToString)(vnode);
+                const appHtml = renderToString(vnode);
                 const templatePath = path.resolve(publicDir, "index.html");
                 let template = fs.readFileSync(templatePath, "utf8");
                 template = template.replace('<div id="app"></div>', `<div id="app">${appHtml}</div>`);
@@ -62,4 +61,3 @@ function createServer(options) {
         console.log(`✅ Valzu server running on http://localhost:${port}`);
     });
 }
-exports.createServer = createServer;

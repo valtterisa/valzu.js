@@ -1,7 +1,7 @@
 export interface ServerOptions {
-  pagesDir?: string;
-  publicDir?: string;
-  port?: number;
+    pagesDir?: string;
+    publicDir?: string;
+    port?: number;
 }
 /**
  * Starts the Express server.

@@ -1,5 +1,5 @@
-import { createElement } from "valzu-core/dist/utils";
+import WelcomePage from "../../components/WelcomePage";
 
 export default function Home() {
-  return createElement("div", { class: "home" }, "Welcome to Valzu.js!");
+  return WelcomePage();
 }
