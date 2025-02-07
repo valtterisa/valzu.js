@@ -2,9 +2,6 @@
 
 **Valzu.js** is an open-source, lightweight full‑stack framework built with TypeScript and ES modules. It supports server‑side rendering with file‑based routing and client‑side hydration—allowing you to build modern, dynamic web applications with minimal configuration.
 
-> **Note:**  
-> Valzu.js is not built on React, though it uses similar component-based concepts. It uses a custom virtual DOM implementation where JSX (or direct calls to `createElement`) is converted into a virtual DOM that is rendered to HTML on the server and hydrated on the client.
-
 ---
 
 ## Features
@@ -35,8 +32,6 @@ After publishing, you can create a new Valzu.js project using [npx](https://docs
 ```bash
 npx create-valzu-app my-new-app
 ```
-
-````
 
 This command will:
 
@@ -124,11 +119,7 @@ To build the production version of your client bundle and start your server from
 
 ## Writing Components
 
-You can write your components either by using plain function calls or JSX.
-
-### Using Plain Function Calls
-
-For example, here’s a component that uses your custom `createElement` function:
+You can write your components by using plain function calls.
 
 ```typescript
 import { createElement } from "valzu-core";
@@ -153,29 +144,46 @@ export default function WelcomePage() {
 }
 ```
 
-### Using JSX Syntax
+---
 
-If you prefer using JSX, add the JSX pragma at the top of your file:
+## Server-Side Data Fetching
 
-```tsx
-/** @jsx createElement */
+One of the powerful features of Valzu.js is that your page modules run on the server. This means you can perform server‑side data queries directly within your pages before rendering the virtual DOM. For example, you can fetch data from an open API and use the results to dynamically generate your page content.
+
+### Example: Displaying a Random Dog Image
+
+Below is an example of how to create a page that fetches a random dog image from the [Dog CEO API](https://dog.ceo/dog-api/) using a function named `fetchDogPicApi`, and then renders that image on the page.
+
+Create a file at `src/pages/index.ts` (or modify your existing home page) with the following code:
+
+```typescript
 import { createElement } from "valzu-core";
 
-export default function WelcomePage() {
-  return (
-    <div className="home">
-      <h1>🚀 Welcome to Valzu.js!</h1>
-      <p>Your full-stack framework is ready to go.</p>
-      <p>Edit components/WelcomePage.ts to modify this page.</p>
-      <a href="https://github.com/your-username/valzu.js" target="_blank">
-        📖 Read the Docs
-      </a>
-    </div>
+// Function to fetch a random dog image from the Dog CEO API.
+async function fetchDogPicApi() {
+  const response = await fetch("https://dog.ceo/api/breeds/image/random");
+  if (!response.ok) {
+    throw new Error("Failed to fetch random dog image");
+  }
+  const data = await response.json();
+  return { data };
+}
+
+// Page function that performs server-side data fetching.
+export default async function Home() {
+  // Fetch data on the server.
+  const { data } = await fetchDogPicApi();
+
+  // Render the page using the fetched data.
+  return createElement(
+    "div",
+    { class: "home" },
+    createElement("h1", {}, "Random Dog Image"),
+    createElement("img", { src: data.message, alt: "Random Dog" }),
+    createElement("p", {}, "Refresh the page to see a new image!")
   );
 }
 ```
-
-The compiler converts this JSX into calls to your `createElement` function.
 
 ---
 
@@ -208,17 +216,6 @@ Refer to your chosen platform’s documentation for specific deployment instruct
 
 ---
 
-## Troubleshooting
-
-- **ESM vs. CommonJS:**
-  Ensure that your `package.json` in `valzu-core` contains `"type": "module"` so that the built files are treated as ES modules.
-- **Dynamic Imports on Windows:**
-  If you encounter errors regarding file URL schemes (e.g., `ERR_UNSUPPORTED_ESM_URL_SCHEME`), convert absolute paths to file URLs using `pathToFileURL` from the `url` module.
-- **Dependency Issues:**
-  If you have issues with CommonJS modules in an ES module environment, ensure that `"esModuleInterop": true` and `"allowSyntheticDefaultImports": true` are set in your tsconfig.
-
----
-
 ## Contributing
 
 Contributions are welcome! If you have suggestions, improvements, or bug fixes, please open an issue or submit a pull request.
@@ -228,10 +225,3 @@ Contributions are welcome! If you have suggestions, improvements, or bug fixes, 
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-Happy coding with Valzu.js!
-
-```
-````

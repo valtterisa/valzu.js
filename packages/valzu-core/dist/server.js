@@ -38,7 +38,7 @@ export function createServer(options) {
                 if (!Component) {
                     throw new Error(`Component not found in ${file}`);
                 }
-                const vnode = Component();
+                const vnode = await Component();
                 const appHtml = renderToString(vnode);
                 const templatePath = path.resolve(publicDir, "index.html");
                 let template = fs.readFileSync(templatePath, "utf8");

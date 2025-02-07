@@ -11,8 +11,7 @@
     "start": "node --loader ts-node/esm src/server.ts"
   },
   "dependencies": {
-    "valzu-core": "^1.0.1",
-    "express": "^4.18.2"
+    "valzu-core": "^valzu-core@latest"
   },
   "devDependencies": {
     "concurrently": "^7.6.0",

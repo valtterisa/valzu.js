@@ -6,7 +6,8 @@ export function createElement(
   props: Record<string, any> = {},
   ...children: any[]
 ) {
-  return { type, props, children };
+  const vnode = { type, props, children };
+  return vnode;
 }
 
 /**

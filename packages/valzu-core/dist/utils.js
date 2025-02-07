@@ -2,7 +2,8 @@
  * Create JSX-like elements.
  */
 export function createElement(type, props = {}, ...children) {
-    return { type, props, children };
+    const vnode = { type, props, children };
+    return vnode;
 }
 /**
  * Render a virtual DOM node (or tree) to an HTML string.
