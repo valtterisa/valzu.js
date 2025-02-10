@@ -1,0 +1,49 @@
+name: Scaffold and Deploy via CLI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  scaffold-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out the repository (containing your CLI tool/template)
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Set up Node.js (using version 16, adjust if needed)
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'npm'
+
+      # 3. Install dependencies for the CLI tool (if any)
+      - name: Install CLI dependencies
+        run: npm install
+
+      # 4. Scaffold a new project using your CLI tool
+      - name: Scaffold new project
+        run: npx create-valzu-app my-new-app
+
+      # 5. Install the generated project's dependencies
+      - name: Install project dependencies
+        run: |
+          cd my-new-app
+          npm install
+
+      # 6. Build the project (this should export static HTML into a folder, e.g. "docs")
+      - name: Build the project
+        run: |
+          cd my-new-app
+          npm run build
+
+      # 7. Deploy the static site to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: my-new-app/docs
