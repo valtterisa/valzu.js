@@ -1,4 +1,4 @@
-name: Scaffold and Deploy via CLI
+name: Build and Deploy
 
 on:
   push:
@@ -6,44 +6,39 @@ on:
       - main
 
 jobs:
-  scaffold-deploy:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      # 1. Check out the repository (containing your CLI tool/template)
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Set up Node.js (using version 16, adjust if needed)
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16'
           cache: 'npm'
 
-      # 3. Install dependencies for the CLI tool (if any)
-      - name: Install CLI dependencies
+      - name: Install dependencies
         run: npm install
 
-      # 4. Scaffold a new project using your CLI tool
-      - name: Scaffold new project
-        run: npx create-valzu-app my-new-app
+      - name: Build project
+        run: npm run build
 
-      # 5. Install the generated project's dependencies
-      - name: Install project dependencies
-        run: |
-          cd my-new-app
-          npm install
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      # 6. Build the project (this should export static HTML into a folder, e.g. "docs")
-      - name: Build the project
-        run: |
-          cd my-new-app
-          npm run build
-
-      # 7. Deploy the static site to GitHub Pages
+      # This step is required to deploy the generated static site files.
+      # Ensure that your build process outputs your static files into the docs/ folder (or whichever folder you choose).
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        id: deployment
+        uses: actions/deploy-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: my-new-app/docs
+          branch: gh-pages  # The branch the action will deploy to.
+          folder: my-new-app/docs  # The folder where your static files are located.
