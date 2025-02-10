@@ -6,15 +6,14 @@ on:
       - main
 
 permissions:
-  id-token: write
   pages: write
+  id-token: write
 
 jobs:
-  scaffold-build-deploy:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      # 1. Checkout the repository (which contains your CLI tool/template)
+      # 1. Check out the repository (which contains your CLI tool/template)
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -25,29 +24,38 @@ jobs:
           node-version: '16'
           cache: 'npm'
 
-      # 3. Install dependencies at the root level (if needed)
+      # 3. Install dependencies at the root level
       - name: Install root dependencies
         run: npm install
 
-      # 4. Run the CLI tool to scaffold a new project named "my-new-app"
-      - name: Scaffold new project with create-valzu-app CLI
+      # 4. Scaffold a new project using your CLI tool
+      - name: Scaffold new project
         run: npx create-valzu-app my-new-app
 
       # 5. Change directory into the new project and install its dependencies
-      - name: Install new project dependencies
+      - name: Install project dependencies
         run: |
           cd my-new-app
           npm install
 
-      # 6. Build the new project to generate static files (e.g., in the "docs" folder)
+      # 6. Build the new project (which should output static files to the "docs" folder)
       - name: Build the new Valzu.js App
         run: |
           cd my-new-app
           npm run build
 
-      # 7. Deploy the generated static site to GitHub Pages
+      # 7. Upload the generated static site as a Pages artifact
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: my-new-app/docs
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
         with:
-          branch: gh-pages          # Branch to deploy to
-          folder: my-new-app/docs     # Folder containing the static site
+          branch: gh-pages
