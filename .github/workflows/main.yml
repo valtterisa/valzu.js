@@ -1,4 +1,4 @@
-name: Scaffold, Build, and Deploy Valzu.js App
+name: Scaffold, Build, and Test Valzu.js App
 
 on:
   push:
@@ -6,58 +6,42 @@ on:
       - main
 
 jobs:
-  build-valzu-core:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-          cache: 'npm'
-      - name: Install and Build valzu-core
-        run: |
-          cd packages/valzu-core
-          npm install
-          npm run build
-
   scaffold-build-test:
-    needs: build-valzu-core
     runs-on: ubuntu-latest
+
     steps:
+      # 1. Checkout repository (which contains your CLI tool/template)
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # 2. Set up Node.js and cache npm dependencies
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '20'
           cache: 'npm'
 
+      # 3. Install root dependencies (if any)
       - name: Install root dependencies
         run: npm install
 
+      # 4. Scaffold a new project using your CLI tool
       - name: Scaffold new project with create-valzu-app CLI
         run: npx create-valzu-app my-new-app
 
-      # Update the dependency in the generated project's package.json to use local valzu-core
-      - name: Update valzu-core dependency in generated project
-        run: |
-          cd my-new-app
-          sed -i.bak 's/"valzu-core": "[^"]*"/"valzu-core": "file:..\/packages\/valzu-core"/' package.json
-          cat package.json
-
+      # 5. Change directory into the new project and install its dependencies
       - name: Install project dependencies
         run: |
           cd my-new-app
           npm install
 
+      # 6. Build the new Valzu.js App
       - name: Build the new Valzu.js App
         run: |
           cd my-new-app
           npm run build
 
+      # 7. Start the server and test that it responds
       - name: Start the server and test response
         run: |
           cd my-new-app
