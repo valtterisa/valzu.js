@@ -46,7 +46,7 @@ jobs:
 
       # 7. Upload the generated static site as a Pages artifact
       - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v4
         with:
           path: my-new-app/docs
 
