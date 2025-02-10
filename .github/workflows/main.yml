@@ -5,56 +5,62 @@ on:
     branches:
       - main
 
-permissions:
-  pages: write
-  id-token: write
-
 jobs:
-  scaffold-build-deploy:
+  build-valzu-core:
     runs-on: ubuntu-latest
-
     steps:
-      # 1. Checkout repository (containing your CLI tool/template and valzu-core)
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'npm'
+      - name: Install and Build valzu-core
+        run: |
+          cd packages/valzu-core
+          npm install
+          npm run build
+
+  scaffold-build-test:
+    needs: build-valzu-core
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Set up Node.js and cache npm dependencies
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16'
           cache: 'npm'
 
-      # 3. Install root dependencies
       - name: Install root dependencies
         run: npm install
 
-      # 4. Scaffold a new project using your CLI tool
       - name: Scaffold new project with create-valzu-app CLI
         run: npx create-valzu-app my-new-app
 
-      # 5. Update valzu-core dependency in the generated project to use the local package
-      - name: Update valzu-core dependency
+      # Update the dependency in the generated project's package.json to use local valzu-core
+      - name: Update valzu-core dependency in generated project
         run: |
           cd my-new-app
-          # Replace the version string for "valzu-core" with a file reference.
-          sed -i.bak 's/"valzu-core": "[^"]*"/"valzu-core": "file:..\/valzu-core"/' package.json
-          cat package.json  # (Optional) Output package.json for verification
+          sed -i.bak 's/"valzu-core": "[^"]*"/"valzu-core": "file:..\/packages\/valzu-core"/' package.json
+          cat package.json
 
-      # 6. Install the generated project's dependencies
       - name: Install project dependencies
         run: |
           cd my-new-app
           npm install
 
-      # 7. Build the new project
       - name: Build the new Valzu.js App
         run: |
           cd my-new-app
           npm run build
 
-      # 8. Start the server (for testing purposes)
       - name: Start the server and test response
         run: |
           cd my-new-app
-          nohup npm start
+          nohup npm start &
+          sleep 10
+          curl -I http://localhost:3000
