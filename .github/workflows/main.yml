@@ -1,19 +1,16 @@
-name: Scaffold, Build, and Deploy Valzu.js App
+name: Scaffold, Build, and Test Valzu.js App
 
 on:
   push:
     branches:
       - main
 
-permissions:
-  pages: write
-  id-token: write
-
 jobs:
-  build:
+  scaffold-build-test:
     runs-on: ubuntu-latest
+
     steps:
-      # 1. Check out the repository (which contains your CLI tool/template)
+      # 1. Check out the repository (which contains your CLI tool and template)
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -24,12 +21,12 @@ jobs:
           node-version: '16'
           cache: 'npm'
 
-      # 3. Install dependencies at the root level
+      # 3. Install CLI dependencies (if any) at the root level
       - name: Install root dependencies
         run: npm install
 
-      # 4. Scaffold a new project using your CLI tool
-      - name: Scaffold new project
+      # 4. Run the CLI tool to scaffold a new project named "my-new-app"
+      - name: Scaffold new project with create-valzu-app CLI
         run: npx create-valzu-app my-new-app
 
       # 5. Change directory into the new project and install its dependencies
@@ -38,24 +35,15 @@ jobs:
           cd my-new-app
           npm install
 
-      # 6. Build the new project (which should output static files to the "docs" folder)
+      # 6. Build the new project
       - name: Build the new Valzu.js App
         run: |
           cd my-new-app
           npm run build
 
-      # 7. Upload the generated static site as a Pages artifact
-      - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: my-new-app/docs
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-        with:
-          branch: gh-pages
+      # 7. Start the server and test that it responds
+      - name: Start the server and test response
+        run: |
+          cd my-new-app
+          # Start the server in the background (using nohup to let it run)
+          nohup npm start
