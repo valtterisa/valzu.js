@@ -1,16 +1,20 @@
-name: Scaffold, Build, and Test Valzu.js App
+name: Scaffold, Build, and Deploy Valzu.js App
 
 on:
   push:
     branches:
       - main
 
+permissions:
+  pages: write
+  id-token: write
+
 jobs:
-  scaffold-build-test:
+  scaffold-build-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Check out the repository (which contains your CLI tool and template)
+      # 1. Checkout repository (containing your CLI tool/template and valzu-core)
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -21,29 +25,36 @@ jobs:
           node-version: '16'
           cache: 'npm'
 
-      # 3. Install CLI dependencies (if any) at the root level
+      # 3. Install root dependencies
       - name: Install root dependencies
         run: npm install
 
-      # 4. Run the CLI tool to scaffold a new project named "my-new-app"
+      # 4. Scaffold a new project using your CLI tool
       - name: Scaffold new project with create-valzu-app CLI
         run: npx create-valzu-app my-new-app
 
-      # 5. Change directory into the new project and install its dependencies
+      # 5. Update valzu-core dependency in the generated project to use the local package
+      - name: Update valzu-core dependency
+        run: |
+          cd my-new-app
+          # Replace the version string for "valzu-core" with a file reference.
+          sed -i.bak 's/"valzu-core": "[^"]*"/"valzu-core": "file:..\/valzu-core"/' package.json
+          cat package.json  # (Optional) Output package.json for verification
+
+      # 6. Install the generated project's dependencies
       - name: Install project dependencies
         run: |
           cd my-new-app
           npm install
 
-      # 6. Build the new project
+      # 7. Build the new project
       - name: Build the new Valzu.js App
         run: |
           cd my-new-app
           npm run build
 
-      # 7. Start the server and test that it responds
+      # 8. Start the server (for testing purposes)
       - name: Start the server and test response
         run: |
           cd my-new-app
-          # Start the server in the background (using nohup to let it run)
           nohup npm start
