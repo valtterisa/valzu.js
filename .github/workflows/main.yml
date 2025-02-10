@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+permissions:
+  id-token: write
+  pages: write
+
 jobs:
   scaffold-build-deploy:
     runs-on: ubuntu-latest
