@@ -1,5 +1,3 @@
-# Valzu.js
-
 **Valzu.js** is an open-source, lightweight full‑stack framework built with TypeScript and ES modules. It supports server‑side rendering with file‑based routing and client‑side hydration—allowing you to build modern, dynamic web applications with minimal configuration.
 
 ---
