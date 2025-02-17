@@ -15,7 +15,7 @@ export interface ServerOptions {
  * Starts the Express server.
  * @param options Optional configuration object.
  */
-export function createServer(options?: ServerOptions): void {
+export function useServer(options?: ServerOptions): void {
   // Create an Express app instance.
   const app = express();
   const cwd = process.cwd();

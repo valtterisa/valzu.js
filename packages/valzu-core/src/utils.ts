@@ -1,7 +1,7 @@
 /**
  * Create JSX-like elements.
  */
-export function createElement(
+export function element(
   type: string,
   props: Record<string, any> = {},
   ...children: any[]

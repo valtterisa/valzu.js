@@ -1,2 +1,2 @@
-export { createServer } from "./server";
+export { useServer } from "./server";
 export * from "./utils";

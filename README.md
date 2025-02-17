@@ -8,13 +8,13 @@
   Any file placed in the `/src/pages` directory becomes a route. For example, `index.tsx` maps to `/`, and `about.tsx` maps to `/about`.
 
 - **Server‑Side Rendering (SSR):**  
-  Dynamically renders pages on the server by converting your virtual DOM (created via `createElement`) into HTML.
+  Dynamically renders pages on the server by converting your virtual DOM (created via `element`) into HTML.
 
 - **Client‑Side Hydration:**  
   Hydrates the server‑rendered HTML on the client so that the page becomes interactive.
 
 - **Custom Component System:**  
-  Write components as plain functions that return virtual DOM nodes using your custom `createElement` function.
+  Write components as plain functions that return virtual DOM nodes using your custom `element` function.
 
 - **CLI Tool:**  
   Use the `create-valzu-app` CLI to quickly scaffold a new project with a pre-configured structure, including a development environment that supports hot reloading.
@@ -120,24 +120,20 @@ To build the production version of your client bundle and start your server from
 You can write your components by using plain function calls.
 
 ```typescript
-import { createElement } from "valzu-core";
+import { element } from "valzu-core";
 
 export default function WelcomePage() {
-  return createElement(
+  return element(
     "div",
     { class: "home" },
-    createElement("h1", {}, "🚀 Welcome to Valzu.js!"),
-    createElement("p", {}, "Your full-stack framework is ready to go."),
-    createElement(
-      "p",
-      {},
-      "Edit components/WelcomePage.ts to modify this page."
-    ),
-    createElement(
+    element("h1", {}, "🚀 Welcome to Valzu.js!"),
+    element("p", {}, "Your full-stack framework is ready to go."),
+    element("p", {}, "Edit components/WelcomePage.ts to modify this page."),
+    element(
       "a",
       { href: "https://github.com/your-username/valzu.js", target: "_blank" },
       "📖 Read the Docs"
-    )
+    element
   );
 }
 ```
@@ -154,12 +150,12 @@ Below is an example of how to create a page that fetches a random dog image from
 
 Create a file at `src/pages/index.ts` (or modify your existing home page) with the following code:
 
-```typescript
-import { createElement } from "valzu-core";
+````typescript
+import { element } from "valzu-core";
 
 // Function to fetch a random dog image from the Dog CEO API.
 async function fetchDogPicApi() {
-  const response = await fetch("https://dog.ceo/api/breeds/image/random");
+  const relementit fetch("https://dog.ceo/api/breeds/image/random");
   if (!response.ok) {
     throw new Error("Failed to fetch random dog image");
   }
@@ -173,16 +169,16 @@ export default async function Home() {
   const { data } = await fetchDogPicApi();
 
   // Render the page using the fetched data.
-  return createElement(
+  return element(
     "div",
     { class: "home" },
-    createElement("h1", {}, "Random Dog Image"),
-    createElement("img", { src: data.message, alt: "Random Dog" }),
-    createElement("p", {}, "Refresh the page to see a new image!")
+    element("h1", {}, "Random Dog Image"),
+    createlement", { src: data.message, alt: "Random Dog" }),
+    element("p", {}, "Refresh the page to see a new image!")
   );
-}
-```
-
+}element
+```element
+element
 ---
 
 ## Styling
@@ -191,7 +187,7 @@ Place your CSS files (e.g., `styles.css`) in the `public` folder and reference t
 
 ```html
 <link rel="stylesheet" href="/styles.css" />
-```
+````
 
 This allows your application to load and apply the styles when the HTML is served.
 

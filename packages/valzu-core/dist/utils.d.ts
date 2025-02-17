@@ -1,10 +1,14 @@
 /**
  * Create JSX-like elements.
  */
-export declare function createElement(type: string, props?: Record<string, any>, ...children: any[]): {
-    type: string;
-    props: Record<string, any>;
-    children: any[];
+export declare function element(
+  type: string,
+  props?: Record<string, any>,
+  ...children: any[]
+): {
+  type: string;
+  props: Record<string, any>;
+  children: any[];
 };
 /**
  * Render a virtual DOM node (or tree) to an HTML string.

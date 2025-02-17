@@ -1,3 +1,3 @@
-import { createServer } from "valzu-core";
+import { useServer } from "valzu-core";
 
-createServer();
+useServer();
