@@ -131,8 +131,3 @@ export function useServer(options?: ServerOptions): void {
     console.log(`✅ Production server running on http://localhost:${port}`);
   });
 }
-
-// If this module is run directly, start the server.
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  useServer();
-}

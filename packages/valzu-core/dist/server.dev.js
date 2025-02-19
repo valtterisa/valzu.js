@@ -156,7 +156,3 @@ export function useServerDev(options) {
         }
     });
 }
-// If this module is run directly, start the dev server.
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-    useServerDev();
-}
