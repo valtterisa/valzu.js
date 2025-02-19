@@ -1,6 +1,6 @@
 {
   "name": "valzu-core",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "type": "module",
   "main": "dist/server.js",
   "browser": "dist/client.js",
@@ -8,11 +8,7 @@
   "scripts": {
     "build": "tsc"
   },
-  "dependencies": {
-    "@types/ws": "^8.5.14",
-    "express": "^4.18.2",
-    "ws": "^8.18.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "typescript": "^4.8.4"
   }
