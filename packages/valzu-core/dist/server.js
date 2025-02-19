@@ -1,7 +1,7 @@
 import express from "express";
 import fs from "fs";
 import path from "path";
-import { pathToFileURL } from "url"; // <-- Import pathToFileURL
+import { pathToFileURL } from "url";
 import { renderToString } from "./utils";
 /**
  * Starts the Express server.
@@ -14,7 +14,7 @@ export function useServer(options) {
     // Determine the directories to use.
     const pagesDir = (options === null || options === void 0 ? void 0 : options.pagesDir)
         ? path.resolve(options.pagesDir)
-        : path.resolve(cwd, "src/pages");
+        : path.resolve(cwd, "pages");
     const publicDir = (options === null || options === void 0 ? void 0 : options.publicDir)
         ? path.resolve(options.publicDir)
         : path.resolve(cwd, "public");

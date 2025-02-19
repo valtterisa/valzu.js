@@ -1,6 +1,6 @@
 {
   "name": "create-valzu-app",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "bin": {
     "create-valzu-app": "./bin/create-valzu-app"
   },

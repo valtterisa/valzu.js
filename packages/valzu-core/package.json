@@ -1,6 +1,6 @@
 {
   "name": "valzu-core",
-  "version": "1.0.7",
+  "version": "1.0.9",
   "type": "module",
   "main": "dist/server.js",
   "browser": "dist/client.js",

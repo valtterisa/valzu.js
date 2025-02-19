@@ -5,7 +5,7 @@
 ## Features
 
 - **File‑Based Routing:**  
-  Any file placed in the `/src/pages` directory becomes a route. For example, `index.tsx` maps to `/`, and `about.tsx` maps to `/about`.
+  Any file placed in the `/pages` directory becomes a route. For example, `index.tsx` maps to `/`, and `about.tsx` maps to `/about`.
 
 - **Server‑Side Rendering (SSR):**  
   Dynamically renders pages on the server by converting your virtual DOM (created via `element`) into HTML.
@@ -148,7 +148,7 @@ One of the powerful features of Valzu.js is that your page modules run on the se
 
 Below is an example of how to create a page that fetches a random dog image from the [Dog CEO API](https://dog.ceo/dog-api/) using a function named `fetchDogPicApi`, and then renders that image on the page.
 
-Create a file at `src/pages/index.ts` (or modify your existing home page) with the following code:
+Create a file at `pages/index.ts` (or modify your existing home page) with the following code:
 
 ````typescript
 import { element } from "valzu-core";
