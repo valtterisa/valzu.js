@@ -1,7 +1,10 @@
 import { useServer as prodServer } from "./server";
 import { useServerDev as devServer } from "./server.dev";
 
-export const useServer =
-  process.env.NODE_ENV === "production" ? prodServer : devServer;
+const mainModule = process.argv[1] || "";
+
+export const useServer = mainModule.includes("server.dev")
+  ? devServer
+  : prodServer;
 
 export * from "./utils";
