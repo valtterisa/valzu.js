@@ -34,11 +34,8 @@ export function renderToString(vnode: any): string {
  */
 export function hydrate(container: HTMLElement) {
   if (!container) {
-    console.error("❌ Hydration failed: container not found");
     return;
   }
-
-  console.log("🛠️ Starting hydration...");
 
   // Reconstruct vDOM from actual DOM.
   function retrieveVNode(node: Element | ChildNode): any {
@@ -90,7 +87,6 @@ export function hydrate(container: HTMLElement) {
 
   // Optional: rehydrate on navigation events.
   window.addEventListener("popstate", () => {
-    console.log("🔄 Popstate event: Rehydrating...");
     hydrate(container);
   });
 
@@ -114,6 +110,4 @@ export function hydrate(container: HTMLElement) {
         });
     }
   });
-
-  console.log("✅ Hydration complete!");
 }
