@@ -12,10 +12,10 @@ export function useServer(options) {
     const app = express();
     const cwd = process.cwd();
     // Determine the directories to use.
-    const pagesDir = (options === null || options === void 0 ? void 0 : options.pagesDir)
+    const pagesDir = options?.pagesDir
         ? path.resolve(options.pagesDir)
         : path.resolve(cwd, "pages");
-    const publicDir = (options === null || options === void 0 ? void 0 : options.publicDir)
+    const publicDir = options?.publicDir
         ? path.resolve(options.publicDir)
         : path.resolve(cwd, "public");
     if (!fs.existsSync(pagesDir)) {
@@ -56,7 +56,7 @@ export function useServer(options) {
     app.use(express.static(publicDir));
     app.use("/client.js", express.static(path.resolve(cwd, ".build/client.js")));
     // Determine the port and start listening.
-    const port = (options === null || options === void 0 ? void 0 : options.port) || Number(process.env.PORT) || 3000;
+    const port = options?.port || Number(process.env.PORT) || 3000;
     app.listen(port, () => {
         console.log(`✅ Valzu server running on http://localhost:${port}`);
     });

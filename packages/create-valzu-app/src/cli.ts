@@ -1,9 +1,9 @@
 // packages/create-valzu-app/src/cli.ts
-import * as fs from "fs";
-import * as path from "path";
+import fs from "fs";
+import path from "path";
 import { execSync } from "child_process";
 
-function copyRecursiveSync(src: string, dest: string) {
+function copyRecursiveSync(src: string, dest: string): void {
   if (fs.existsSync(src)) {
     const stats = fs.statSync(src);
     if (stats.isDirectory()) {
@@ -11,18 +11,18 @@ function copyRecursiveSync(src: string, dest: string) {
         fs.mkdirSync(dest);
       }
       const files = fs.readdirSync(src);
-      files.forEach((file) => {
+      for (const file of files) {
         const curSource = path.join(src, file);
         const curDest = path.join(dest, file);
         copyRecursiveSync(curSource, curDest);
-      });
+      }
     } else {
       fs.copyFileSync(src, dest);
     }
   }
 }
 
-function createProject(projectName: string) {
+function createProject(projectName: string): void {
   const templatePath = path.resolve(__dirname, "../template");
   const targetPath = path.resolve(process.cwd(), projectName);
 

@@ -1,55 +1,35 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // packages/create-valzu-app/src/cli.ts
-const fs = __importStar(require("fs"));
-const path = __importStar(require("path"));
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 const child_process_1 = require("child_process");
 function copyRecursiveSync(src, dest) {
-    if (fs.existsSync(src)) {
-        const stats = fs.statSync(src);
+    if (fs_1.default.existsSync(src)) {
+        const stats = fs_1.default.statSync(src);
         if (stats.isDirectory()) {
-            if (!fs.existsSync(dest)) {
-                fs.mkdirSync(dest);
+            if (!fs_1.default.existsSync(dest)) {
+                fs_1.default.mkdirSync(dest);
             }
-            const files = fs.readdirSync(src);
-            files.forEach((file) => {
-                const curSource = path.join(src, file);
-                const curDest = path.join(dest, file);
+            const files = fs_1.default.readdirSync(src);
+            for (const file of files) {
+                const curSource = path_1.default.join(src, file);
+                const curDest = path_1.default.join(dest, file);
                 copyRecursiveSync(curSource, curDest);
-            });
+            }
         }
         else {
-            fs.copyFileSync(src, dest);
+            fs_1.default.copyFileSync(src, dest);
         }
     }
 }
 function createProject(projectName) {
-    const templatePath = path.resolve(__dirname, "../template");
-    const targetPath = path.resolve(process.cwd(), projectName);
-    if (fs.existsSync(targetPath)) {
+    const templatePath = path_1.default.resolve(__dirname, "../template");
+    const targetPath = path_1.default.resolve(process.cwd(), projectName);
+    if (fs_1.default.existsSync(targetPath)) {
         console.error(`❌ Project directory "${projectName}" already exists.`);
         process.exit(1);
     }
