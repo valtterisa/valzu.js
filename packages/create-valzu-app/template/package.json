@@ -6,9 +6,9 @@
     "build:server": "tsc",
     "build:client": "esbuild src/client.tsx --bundle --minify --outfile=.valzu/client.js --format=esm --platform=browser --external:fs --external:path --external:net --external:http --external:events --external:url --external:querystring --external:zlib --external:crypto --external:stream --external:util",
     "build": "npm run build:server && npm run build:client",
-    "start": "node .valzu/server.js",
-    "dev:client": "esbuild src/client.tsx --bundle --minify --outfile=.valzu/client.js --format=esm --platform=browser --external:fs --external:path --external:net --external:http --external:events --external:url --external:querystring --external:zlib --external:crypto --external:stream --external:util --watch",
-    "dev:server": "nodemon",
+    "start": "NODE_ENV=production node .valzu/server.js",
+    "dev:client": "NODE_ENV=development esbuild src/client.tsx --bundle --minify --outfile=.valzu/client.js --format=esm --platform=browser --external:fs --external:path --external:net --external:http --external:events --external:url --external:querystring --external:zlib --external:crypto --external:stream --external:util --watch",
+    "dev:server": "NODE_ENV=development ts-node --esm .valzu/server.dev.ts",
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\""
   },
   "files": [
@@ -19,7 +19,7 @@
     "LICENSE"
   ],
   "dependencies": {
-    "valzu-core": "^1.0.13"
+    "valzu-core": "^1.0.14"
   },
   "devDependencies": {
     "concurrently": "^7.6.0",
