@@ -7,7 +7,7 @@
     "build:client": "esbuild src/client.tsx --bundle --minify --outfile=.valzu/client.js --format=esm --platform=browser --external:fs --external:path --external:net --external:http --external:events --external:url --external:querystring --external:zlib --external:crypto --external:stream --external:util",
     "build": "npm run build:server && npm run build:client",
     "start": "node .valzu/server.js",
-    "dev:client": "esbuild src/client.tsx --bundle --minify --outfile=.build/client.js --format=esm --platform=browser --external:fs --external:path --external:net --external:http --external:events --external:url --external:querystring --external:zlib --external:crypto --external:stream --external:util --watch",
+    "dev:client": "esbuild src/client.tsx --bundle --minify --outfile=.valzu/client.js --format=esm --platform=browser --external:fs --external:path --external:net --external:http --external:events --external:url --external:querystring --external:zlib --external:crypto --external:stream --external:util --watch",
     "dev:server": "nodemon",
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\""
   },

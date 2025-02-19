@@ -54,7 +54,7 @@ export function useServer(options) {
     });
     // Serve static files from the public directory.
     app.use(express.static(publicDir));
-    app.use("/client.js", express.static(path.resolve(cwd, "dist/client.js")));
+    app.use("/client.js", express.static(path.resolve(cwd, ".build/client.js")));
     // Determine the port and start listening.
     const port = (options === null || options === void 0 ? void 0 : options.port) || Number(process.env.PORT) || 3000;
     app.listen(port, () => {
