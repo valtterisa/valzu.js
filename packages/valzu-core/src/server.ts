@@ -56,6 +56,8 @@ export function useServer(options?: ServerOptions): void {
       return;
     }
 
+    // If you had other static assets before in the public directory,
+    // you may need to update or remove this block if they're no longer used.
     const staticPath: string = path.resolve(cwd, "." + reqUrl);
     if (fs.existsSync(staticPath) && fs.statSync(staticPath).isFile()) {
       let contentType: string = "text/plain";
@@ -89,7 +91,8 @@ export function useServer(options?: ServerOptions): void {
         const vnode: any = await Component();
         const appHtml: string = renderToString(vnode);
 
-        const templatePath: string = path.resolve(__dirname, "index.html");
+        // Read the HTML template from the project root.
+        const templatePath: string = path.resolve(cwd, "index.html");
         let template: string = fs.readFileSync(templatePath, "utf8");
         template = template.replace(
           '<div id="app"></div>',

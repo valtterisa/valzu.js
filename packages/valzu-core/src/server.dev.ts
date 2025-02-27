@@ -88,8 +88,8 @@ export function useServerDev(options?: ServerOptions): void {
         if (!Component) throw new Error(`Component not found in ${file}`);
         const vnode: any = await Component();
         const appHtml: string = renderToString(vnode);
-        // Load the template from the project root using __dirname.
-        const templatePath: string = path.resolve(__dirname, "index.html");
+        // Load the template from the project root.
+        const templatePath: string = path.resolve(cwd, "index.html");
         let template: string = fs.readFileSync(templatePath, "utf8");
         template = template.replace(
           '<div id="app"></div>',
