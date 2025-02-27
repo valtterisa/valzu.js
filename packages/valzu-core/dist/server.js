@@ -3,43 +3,45 @@ import http from "http";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
-// Import your renderToString function from your internal utils.
-// Adjust the import path as needed.
 import { renderToString } from "./utils";
 /**
- * Starts the production server (no hot reload).
+ * Starts the production server.
+ *
+ * This version loads compiled page modules from .valzu/pages instead of the raw TypeScript files.
  */
 export function useServer(options) {
     // Create __dirname in ESM.
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
     const cwd = process.cwd();
-    const pagesDir = options?.pagesDir
+    // Use the compiled pages directory instead of the raw pages folder.
+    const compiledPagesDir = options?.pagesDir
         ? path.resolve(options.pagesDir)
-        : path.resolve(cwd, "pages");
+        : path.resolve(cwd, ".valzu", "pages");
     const publicDir = options?.publicDir
         ? path.resolve(options.publicDir)
         : path.resolve(cwd, "public");
-    if (!fs.existsSync(pagesDir)) {
-        console.error(`❌ Pages directory not found at ${pagesDir}`);
+    if (!fs.existsSync(compiledPagesDir)) {
+        console.error(`❌ Compiled pages directory not found at ${compiledPagesDir}. Please run your build process to compile your pages.`);
         process.exit(1);
     }
-    // Build a route mapping from page files (files ending with .ts or .tsx).
+    // Read compiled pages (only .js files) from the compiled directory.
     const pageFiles = fs
-        .readdirSync(pagesDir)
-        .filter((file) => /\.(ts|tsx)$/.test(file));
+        .readdirSync(compiledPagesDir)
+        .filter((file) => file.endsWith(".js"));
+    // Build route mapping: index.js -> "/", about.js -> "/about", etc.
     const routes = {};
     pageFiles.forEach((file) => {
-        const name = file.replace(/\.(ts|tsx)$/, "");
+        const name = file.replace(/\.js$/, "");
         const route = name === "index" ? "/" : `/${name}`;
         routes[route] = file;
     });
     // Create the HTTP server.
     const server = http.createServer(async (req, res) => {
         const reqUrl = req.url || "/";
-        // Serve the prebuilt client bundle from .valzu.
+        // Serve the client bundle.
         if (reqUrl === "/client.js") {
-            const clientFile = path.resolve(cwd, ".valzu/client.js");
+            const clientFile = path.resolve(cwd, ".valzu", "client.js");
             fs.readFile(clientFile, (err, data) => {
                 if (err) {
                     res.statusCode = 404;
@@ -79,8 +81,7 @@ export function useServer(options) {
         if (routes[reqUrl] !== undefined) {
             try {
                 const file = routes[reqUrl];
-                const modulePath = path.join(pagesDir, file);
-                // Convert file path to file URL for dynamic import.
+                const modulePath = path.join(compiledPagesDir, file);
                 const moduleUrl = pathToFileURL(modulePath).href;
                 const importedModule = await import(moduleUrl);
                 const Component = importedModule.default;
@@ -105,7 +106,6 @@ export function useServer(options) {
             }
             return;
         }
-        // Fallback: 404 Not Found.
         res.statusCode = 404;
         res.end("Not Found");
     });
