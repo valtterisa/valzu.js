@@ -7,7 +7,6 @@ import { renderToString } from "./utils";
 
 export interface ServerOptions {
   pagesDir?: string;
-  publicDir?: string;
   port?: number;
 }
 
@@ -23,9 +22,6 @@ export function useServerDev(options?: ServerOptions): void {
   const pagesDir: string = options?.pagesDir
     ? path.resolve(options.pagesDir)
     : path.resolve(cwd, "pages");
-  const publicDir: string = options?.publicDir
-    ? path.resolve(options.publicDir)
-    : path.resolve(cwd, "public");
 
   if (!fs.existsSync(pagesDir)) {
     console.error(`❌ Pages directory not found at ${pagesDir}`);
@@ -81,26 +77,6 @@ export function useServerDev(options?: ServerOptions): void {
       return;
     }
 
-    // Serve static files from the public directory.
-    const staticPath: string = path.resolve(publicDir, "." + reqUrl);
-    if (fs.existsSync(staticPath) && fs.statSync(staticPath).isFile()) {
-      let contentType: string = "text/plain";
-      const ext: string = path.extname(staticPath);
-      if (ext === ".html") contentType = "text/html";
-      else if (ext === ".css") contentType = "text/css";
-      else if (ext === ".js") contentType = "application/javascript";
-      fs.readFile(staticPath, (err, data) => {
-        if (err) {
-          res.statusCode = 500;
-          res.end("Internal Server Error");
-        } else {
-          res.setHeader("Content-Type", contentType);
-          res.end(data);
-        }
-      });
-      return;
-    }
-
     // Handle dynamic routes.
     if (routes[reqUrl] !== undefined) {
       try {
@@ -112,7 +88,8 @@ export function useServerDev(options?: ServerOptions): void {
         if (!Component) throw new Error(`Component not found in ${file}`);
         const vnode: any = await Component();
         const appHtml: string = renderToString(vnode);
-        const templatePath: string = path.resolve(publicDir, "index.html");
+        // Load the template from the project root using __dirname.
+        const templatePath: string = path.resolve(__dirname, "index.html");
         let template: string = fs.readFileSync(templatePath, "utf8");
         template = template.replace(
           '<div id="app"></div>',

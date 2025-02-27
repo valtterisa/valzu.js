@@ -7,28 +7,18 @@ import { renderToString } from "./utils";
 
 export interface ServerOptions {
   pagesDir?: string;
-  publicDir?: string;
+  // publicDir is now removed since index.html is at the root.
   port?: number;
 }
 
-/**
- * Starts the production server.
- *
- * This version loads compiled page modules from .valzu/pages instead of the raw TypeScript files.
- */
 export function useServer(options?: ServerOptions): void {
-  // Create __dirname in ESM.
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   const cwd: string = process.cwd();
 
-  // Use the compiled pages directory instead of the raw pages folder.
   const compiledPagesDir: string = options?.pagesDir
     ? path.resolve(options.pagesDir)
     : path.resolve(cwd, ".valzu", "pages");
-  const publicDir: string = options?.publicDir
-    ? path.resolve(options.publicDir)
-    : path.resolve(cwd, "public");
 
   if (!fs.existsSync(compiledPagesDir)) {
     console.error(
@@ -37,12 +27,10 @@ export function useServer(options?: ServerOptions): void {
     process.exit(1);
   }
 
-  // Read compiled pages (only .js files) from the compiled directory.
   const pageFiles: string[] = fs
     .readdirSync(compiledPagesDir)
     .filter((file) => file.endsWith(".js"));
 
-  // Build route mapping: index.js -> "/", about.js -> "/about", etc.
   const routes: { [route: string]: string } = {};
   pageFiles.forEach((file) => {
     const name: string = file.replace(/\.js$/, "");
@@ -50,7 +38,6 @@ export function useServer(options?: ServerOptions): void {
     routes[route] = file;
   });
 
-  // Create the HTTP server.
   const server = http.createServer(async (req, res) => {
     const reqUrl: string = req.url || "/";
 
@@ -69,8 +56,7 @@ export function useServer(options?: ServerOptions): void {
       return;
     }
 
-    // Serve static files from the public directory.
-    const staticPath: string = path.resolve(publicDir, "." + reqUrl);
+    const staticPath: string = path.resolve(cwd, "." + reqUrl);
     if (fs.existsSync(staticPath) && fs.statSync(staticPath).isFile()) {
       let contentType: string = "text/plain";
       const ext: string = path.extname(staticPath);
@@ -103,14 +89,12 @@ export function useServer(options?: ServerOptions): void {
         const vnode: any = await Component();
         const appHtml: string = renderToString(vnode);
 
-        // Read the HTML template.
-        const templatePath: string = path.resolve(publicDir, "index.html");
+        const templatePath: string = path.resolve(__dirname, "index.html");
         let template: string = fs.readFileSync(templatePath, "utf8");
         template = template.replace(
           '<div id="app"></div>',
           `<div id="app">${appHtml}</div>`
         );
-        // Inject the client bundle.
         template = template.replace(
           "</body>",
           `<script type="module" src="/client.js"></script></body>`

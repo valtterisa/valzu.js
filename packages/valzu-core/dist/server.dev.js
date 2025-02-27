@@ -15,9 +15,6 @@ export function useServerDev(options) {
     const pagesDir = options?.pagesDir
         ? path.resolve(options.pagesDir)
         : path.resolve(cwd, "pages");
-    const publicDir = options?.publicDir
-        ? path.resolve(options.publicDir)
-        : path.resolve(cwd, "public");
     if (!fs.existsSync(pagesDir)) {
         console.error(`❌ Pages directory not found at ${pagesDir}`);
         process.exit(1);
@@ -68,29 +65,6 @@ export function useServerDev(options) {
             });
             return;
         }
-        // Serve static files from the public directory.
-        const staticPath = path.resolve(publicDir, "." + reqUrl);
-        if (fs.existsSync(staticPath) && fs.statSync(staticPath).isFile()) {
-            let contentType = "text/plain";
-            const ext = path.extname(staticPath);
-            if (ext === ".html")
-                contentType = "text/html";
-            else if (ext === ".css")
-                contentType = "text/css";
-            else if (ext === ".js")
-                contentType = "application/javascript";
-            fs.readFile(staticPath, (err, data) => {
-                if (err) {
-                    res.statusCode = 500;
-                    res.end("Internal Server Error");
-                }
-                else {
-                    res.setHeader("Content-Type", contentType);
-                    res.end(data);
-                }
-            });
-            return;
-        }
         // Handle dynamic routes.
         if (routes[reqUrl] !== undefined) {
             try {
@@ -103,7 +77,8 @@ export function useServerDev(options) {
                     throw new Error(`Component not found in ${file}`);
                 const vnode = await Component();
                 const appHtml = renderToString(vnode);
-                const templatePath = path.resolve(publicDir, "index.html");
+                // Load the template from the project root using __dirname.
+                const templatePath = path.resolve(__dirname, "index.html");
                 let template = fs.readFileSync(templatePath, "utf8");
                 template = template.replace('<div id="app"></div>', `<div id="app">${appHtml}</div>`);
                 // Inject client bundle and HMR client code (using SSE).
