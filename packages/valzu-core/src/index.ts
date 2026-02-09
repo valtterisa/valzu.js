@@ -1,10 +1,14 @@
-import { useServer as prodServer } from "./server";
-import { useServerDev as devServer } from "./server.dev";
+// Valzu.js Core - A full-stack React framework with Vite SSR support
 
-const mainModule = process.argv[1] || "";
+// SEO utilities - these are the main exports for React SSR apps
+export {
+  Head,
+  HeadProvider,
+  createHeadContext,
+  renderHeadToString,
+  type SEOProps,
+} from "./seo";
 
-export const useServer = mainModule.includes("server.dev")
-  ? devServer
-  : prodServer;
+// Legacy utilities (deprecated)
+export { element, renderToString, hydrate } from "./utils";
 
-export * from "./utils";
