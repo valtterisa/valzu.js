@@ -12,7 +12,7 @@ function useServer(options) {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
   const cwd = process.cwd();
-  const compiledPagesDir = options?.pagesDir ? path.resolve(options.pagesDir) : path.resolve(cwd, ".valzu", "pages");
+  const compiledPagesDir = options?.pagesDir ? path.resolve(options.pagesDir) : path.resolve(cwd, ".landr", "pages");
   if (!fs.existsSync(compiledPagesDir)) {
     console.error(
       `\u274C Compiled pages directory not found at ${compiledPagesDir}. Please run your build process to compile your pages.`
@@ -29,7 +29,7 @@ function useServer(options) {
   const server = http.createServer(async (req, res) => {
     const reqUrl = req.url || "/";
     if (reqUrl === "/client.js") {
-      const clientFile = path.resolve(cwd, ".valzu", "client.js");
+      const clientFile = path.resolve(cwd, ".landr", "client.js");
       fs.readFile(clientFile, (err, data) => {
         if (err) {
           res.statusCode = 404;

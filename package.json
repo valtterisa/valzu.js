@@ -1,5 +1,5 @@
 {
-  "name": "valzu.js",
+  "name": "landr.js",
   "private": true,
   "packageManager": "pnpm@9.15.0",
   "workspaces": [
@@ -8,21 +8,22 @@
   "scripts": {
     "build": "turbo run build",
     "build:all": "turbo run build",
-    "build:cli": "pnpm --filter create-valzu-app build",
-    "build:core": "pnpm --filter valzu-core build",
-    "build:blocks": "pnpm --filter valzu-blocks build",
+    "build:cli": "pnpm --filter create-landr-app build",
+    "build:core": "pnpm --filter @landr/core build",
+    "build:blocks": "pnpm --filter @landr/blocks build",
     "dev": "turbo run dev",
-    "create": "node packages/create-valzu-app/bin/create-valzu-app",
-    "create:demo": "pnpm run build:cli && pnpm run create -- valzu-demo --template landing",
+    "create": "node packages/create-landr-app/bin/create-landr-app",
+    "create:demo": "pnpm run build:cli && pnpm run create -- landr-demo --template landing",
     "changeset": "changeset",
     "version": "changeset version",
     "publish:packages": "pnpm run build && changeset publish",
-    "publish:core": "pnpm --filter valzu-core exec npm publish --access public",
-    "publish:cli": "pnpm run build:cli && pnpm --filter create-valzu-app exec npm publish --access public",
+    "publish:core": "pnpm --filter @landr/core exec npm publish --access public",
+    "publish:cli": "pnpm run build:cli && pnpm --filter create-landr-app exec npm publish --access public",
+    "publish:blocks": "pnpm --filter @landr/blocks exec npm publish --access public",
     "publish:all": "pnpm run publish:core && pnpm run publish:cli"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.10",
+    "@changesets/cli": "0.0.0-pr1845.8583df5",
     "turbo": "^2.3.0"
   }
 }

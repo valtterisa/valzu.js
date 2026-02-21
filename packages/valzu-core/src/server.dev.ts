@@ -62,9 +62,9 @@ export function useServerDev(options?: ServerOptions): void {
       return;
     }
 
-    // Serve client.js from .valzu.
+    // Serve client.js from .landr.
     if (reqUrl === "/client.js") {
-      const clientFile: string = path.resolve(cwd, ".valzu/client.js");
+      const clientFile: string = path.resolve(cwd, ".landr/client.js");
       fs.readFile(clientFile, (err, data) => {
         if (err) {
           res.statusCode = 404;
@@ -144,7 +144,7 @@ export function useServerDev(options?: ServerOptions): void {
   });
 
   // Also watch for changes in the client bundle.
-  const clientPath: string = path.resolve(cwd, ".valzu/client.js");
+  const clientPath: string = path.resolve(cwd, ".landr/client.js");
   fs.watchFile(clientPath, (curr, prev) => {
     if (curr.mtime.getTime() !== prev.mtime.getTime()) {
       console.log("Client bundle changed.");

@@ -1,11 +1,11 @@
 <div align="center">
 
-# ⚡ Valzu.js
+# ⚡ Landr.js
 
 **A modern React framework for fast, SEO-ready client sites**
 
-[![npm](https://img.shields.io/npm/v/valzu-core?color=6366f1&label=valzu-core&logo=npm)](https://www.npmjs.com/package/valzu-core)
-[![npm](https://img.shields.io/npm/v/create-valzu-app?color=6366f1&label=create-valzu-app&logo=npm)](https://www.npmjs.com/package/create-valzu-app)
+[![npm](https://img.shields.io/npm/v/@landr/core?color=6366f1&label=@landr/core&logo=npm)](https://www.npmjs.com/package/@landr/core)
+[![npm](https://img.shields.io/npm/v/create-landr-app?color=6366f1&label=create-landr-app&logo=npm)](https://www.npmjs.com/package/create-landr-app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-8b5cf6.svg)](LICENCE.md)
 
 *TypeScript · Vite · SSR · React 18*
@@ -20,7 +20,7 @@
 
 ---
 
-## ✨ Why Valzu?
+## ✨ Why Landr?
 
 | | |
 |:---:|:---|
@@ -38,7 +38,7 @@
 **Create a new app in one command:**
 
 ```bash
-npx create-valzu-app my-landing-page
+npx create-landr-app my-landing-page
 cd my-landing-page
 npm run dev
 ```
@@ -68,10 +68,10 @@ my-landing-page/
 
 ## 📱 SEO support
 
-Use the **`Head`** component from `valzu-core` for meta tags. Works with SSR out of the box.
+Use the **`Head`** component from `@landr/core` for meta tags. Works with SSR out of the box.
 
 ```tsx
-import { Head } from "valzu-core";
+import { Head } from "@landr/core";
 
 export default function LandingPage() {
   return (
@@ -124,14 +124,14 @@ export default function LandingPage() {
 
 ## 🛠 Monorepo development
 
-This repo is a **pnpm + Turborepo** monorepo. To hack on `valzu-core` and the template together:
+This repo is a **pnpm + Turborepo** monorepo. To hack on `@landr/core` and the template together:
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-This runs **valzu-core** in watch mode and the **template app**; edits to the core package are reflected in the template live.
+This runs **@landr/core** in watch mode and the **template app**; edits to the core package are reflected in the template live.
 
 ---
 

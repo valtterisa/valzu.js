@@ -42,7 +42,7 @@ function useServerDev(options) {
       return;
     }
     if (reqUrl === "/client.js") {
-      const clientFile = path.resolve(cwd, ".valzu/client.js");
+      const clientFile = path.resolve(cwd, ".landr/client.js");
       fs.readFile(clientFile, (err, data) => {
         if (err) {
           res.statusCode = 404;
@@ -109,7 +109,7 @@ function useServerDev(options) {
     console.log(`File changed in pages: ${filename} (event: ${event})`);
     notifyClients();
   });
-  const clientPath = path.resolve(cwd, ".valzu/client.js");
+  const clientPath = path.resolve(cwd, ".landr/client.js");
   fs.watchFile(clientPath, (curr, prev) => {
     if (curr.mtime.getTime() !== prev.mtime.getTime()) {
       console.log("Client bundle changed.");

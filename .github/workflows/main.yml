@@ -1,4 +1,4 @@
-name: Scaffold, Build, and Test Valzu.js App
+name: Scaffold, Build, and Test Landr.js App
 
 on:
   push:
@@ -26,8 +26,8 @@ jobs:
         run: npm install
 
       # 4. Scaffold a new project using your CLI tool
-      - name: Scaffold new project with create-valzu-app CLI
-        run: npx create-valzu-app my-new-app
+      - name: Scaffold new project with create-landr-app CLI
+        run: npx create-landr-app my-new-app
 
       # 5. Change directory into the new project and install its dependencies
       - name: Install project dependencies
@@ -35,8 +35,8 @@ jobs:
           cd my-new-app
           npm install
 
-      # 6. Build the new Valzu.js App
-      - name: Build the new Valzu.js App
+      # 6. Build the new Landr.js App
+      - name: Build the new Landr.js App
         run: |
           cd my-new-app
           npm run build

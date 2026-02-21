@@ -1,4 +1,4 @@
-// packages/valzu-core/src/global.d.ts
+// packages/@landr/core/src/global.d.ts
 
 declare namespace JSX {
   interface IntrinsicElements {

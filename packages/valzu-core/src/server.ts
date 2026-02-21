@@ -22,7 +22,7 @@ export function useServer(options?: ServerOptions): void {
 
   const compiledPagesDir: string = options?.pagesDir
     ? path.resolve(options.pagesDir)
-    : path.resolve(cwd, ".valzu", "pages");
+    : path.resolve(cwd, ".landr", "pages");
 
   if (!fs.existsSync(compiledPagesDir)) {
     console.error(
@@ -47,7 +47,7 @@ export function useServer(options?: ServerOptions): void {
 
     // Serve the client bundle.
     if (reqUrl === "/client.js") {
-      const clientFile: string = path.resolve(cwd, ".valzu", "client.js");
+      const clientFile: string = path.resolve(cwd, ".landr", "client.js");
       fs.readFile(clientFile, (err, data) => {
         if (err) {
           res.statusCode = 404;
