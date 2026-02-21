@@ -31,8 +31,13 @@ function createProject(projectName: string): void {
     process.exit(1);
   }
 
-  // Copy the template recursively
   copyRecursiveSync(templatePath, targetPath);
+  const pkgPath = path.join(targetPath, "package.json");
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+  if (pkg.dependencies?.["valzu-core"] === "workspace:*") {
+    pkg.dependencies["valzu-core"] = "^2.0.0";
+    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
+  }
   console.log(`✅ Project "${projectName}" created successfully!`);
 
   // Automatically install dependencies in the new project

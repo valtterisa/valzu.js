@@ -16,7 +16,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.0",
     "sirv": "^2.0.4",
-    "valzu-core": "^2.0.0"
+    "valzu-core": "workspace:*"
   },
   "devDependencies": {
     "@types/compression": "^1.7.5",

@@ -1,13 +1,23 @@
 {
   "name": "valzu.js",
   "private": true,
+  "packageManager": "pnpm@9.15.0",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "build:all": "cd packages/valzu-core && npm run build && cd ../create-valzu-app && npm run build",
-    "publish:core": "cd packages/valzu-core && npm publish --access public",
-    "publish:cli": "cd packages/create-valzu-app && npm publish --access public",
-    "publish:all": "npm run publish:core && npm run publish:cli"
+    "build": "turbo run build",
+    "build:all": "turbo run build",
+    "dev": "turbo run dev",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "publish:packages": "pnpm run build && changeset publish",
+    "publish:core": "pnpm --filter valzu-core exec npm publish --access public",
+    "publish:cli": "pnpm --filter create-valzu-app exec npm publish --access public",
+    "publish:all": "pnpm run publish:core && pnpm run publish:cli"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.10",
+    "turbo": "^2.3.0"
   }
 }
