@@ -8,12 +8,17 @@
   "scripts": {
     "build": "turbo run build",
     "build:all": "turbo run build",
+    "build:cli": "pnpm --filter create-valzu-app build",
+    "build:core": "pnpm --filter valzu-core build",
+    "build:blocks": "pnpm --filter valzu-blocks build",
     "dev": "turbo run dev",
+    "create": "node packages/create-valzu-app/bin/create-valzu-app",
+    "create:demo": "pnpm run build:cli && pnpm run create -- valzu-demo --template landing",
     "changeset": "changeset",
     "version": "changeset version",
     "publish:packages": "pnpm run build && changeset publish",
     "publish:core": "pnpm --filter valzu-core exec npm publish --access public",
-    "publish:cli": "pnpm --filter create-valzu-app exec npm publish --access public",
+    "publish:cli": "pnpm run build:cli && pnpm --filter create-valzu-app exec npm publish --access public",
     "publish:all": "pnpm run publish:core && pnpm run publish:cli"
   },
   "devDependencies": {

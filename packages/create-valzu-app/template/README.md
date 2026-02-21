@@ -9,7 +9,7 @@ A modern React application built with Valzu.js, featuring server-side rendering 
 Start the development server with hot module replacement:
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to see your app.
@@ -19,13 +19,13 @@ Open [http://localhost:3000](http://localhost:3000) to see your app.
 Build your application for production:
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 Preview the production build:
 
 ```bash
-npm run preview
+pnpm run preview
 ```
 
 ## Project Structure

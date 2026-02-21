@@ -33,23 +33,6 @@ function getTemplatePath(choice: TemplateName): string {
   return path.join(base, `template-${choice}`);
 }
 
-function fixPackageJson(targetPath: string): void {
-  const pkgPath = path.join(targetPath, "package.json");
-  const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
-  let changed = false;
-  if (pkg.dependencies?.["valzu-core"] === "workspace:*") {
-    pkg.dependencies["valzu-core"] = "^2.0.0";
-    changed = true;
-  }
-  if (pkg.dependencies?.["valzu-blocks"] === "workspace:*") {
-    pkg.dependencies["valzu-blocks"] = "^1.0.0";
-    changed = true;
-  }
-  if (changed) {
-    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
-  }
-}
-
 function createProject(projectName: string, template: TemplateName): void {
   const templatePath = getTemplatePath(template);
   const targetPath = path.resolve(process.cwd(), projectName);
@@ -65,22 +48,32 @@ function createProject(projectName: string, template: TemplateName): void {
   }
 
   copyRecursiveSync(templatePath, targetPath);
-  fixPackageJson(targetPath);
+
+  const pkgPath = path.join(targetPath, "package.json");
+  let pkg = fs.readFileSync(pkgPath, "utf-8");
+  if (pkg.includes("workspace:*")) {
+    pkg = pkg
+      .replace(/"valzu-core"\s*:\s*"workspace:\*"/g, '"valzu-core": "^2.0.0"')
+      .replace(/"valzu-blocks"\s*:\s*"workspace:\*"/g, '"valzu-blocks": "^1.0.0"')
+      .replace(/"([^"]+)"\s*:\s*"workspace:\*"/g, '"$1": "*"');
+    fs.writeFileSync(pkgPath, pkg);
+  }
+
   console.log(`✅ Project "${projectName}" created with template "${template}"!`);
 
   console.log("Installing dependencies... Please wait.");
   try {
-    execSync("npm install", { cwd: targetPath, stdio: "inherit" });
+    execSync("pnpm install", { cwd: targetPath, stdio: "inherit" });
     console.log("✅ Dependencies installed successfully!");
   } catch (error) {
     console.error(
-      "❌ Failed to install dependencies. Please run 'npm install' manually in the project directory."
+      "❌ Failed to install dependencies. Please run 'pnpm install' manually in the project directory."
     );
   }
 
   console.log(`\nNext steps:
   1. Change to the project directory: cd ${projectName}
-  2. Run the development server: npm run dev
+  2. Run the development server: pnpm run dev
   3. Open your browser at http://localhost:3000 to view your app.\n`);
 }
 
@@ -90,7 +83,7 @@ function promptTemplate(): Promise<TemplateName> {
     new Promise((resolve) => {
       rl.question(
         `Which template? (${TEMPLATES.join(" | ")}): `,
-        (answer) => {
+        (answer: string) => {
           rl.close();
           resolve(answer.trim().toLowerCase() || "blank");
         }
@@ -98,7 +91,7 @@ function promptTemplate(): Promise<TemplateName> {
     });
 
   return question().then((answer: string) => {
-    if ((TEMPLATES as readonly string[]).includes(answer)) {
+    if (TEMPLATES.includes(answer as TemplateName)) {
       return answer as TemplateName;
     }
     return "blank";
@@ -125,7 +118,7 @@ async function main(): Promise<void> {
   }
 
   const template: TemplateName =
-    templateArg && (TEMPLATES as readonly string[]).includes(templateArg)
+    templateArg && TEMPLATES.includes(templateArg as TemplateName)
       ? (templateArg as TemplateName)
       : await promptTemplate();
 
