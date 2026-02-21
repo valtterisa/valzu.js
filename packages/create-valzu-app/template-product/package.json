@@ -16,7 +16,8 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.0",
     "sirv": "^2.0.4",
-    "valzu-core": "workspace:*"
+    "valzu-core": "workspace:*",
+    "valzu-blocks": "workspace:*"
   },
   "devDependencies": {
     "@types/compression": "^1.7.5",
@@ -27,7 +28,7 @@
     "@vitejs/plugin-react": "^4.2.1",
     "cross-env": "^7.0.3",
     "typescript": "^5.3.3",
-"vite": "^5.0.12",
+    "vite": "^5.0.12",
     "tailwindcss": "^4.0.0",
     "@tailwindcss/vite": "^4.0.0"
   }

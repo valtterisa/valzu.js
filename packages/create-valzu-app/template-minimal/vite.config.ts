@@ -9,7 +9,6 @@ export default defineConfig({
     sourcemap: true,
   },
   ssr: {
-    // Add external packages that should not be bundled for SSR
-    noExternal: ["valzu-core"],
+    noExternal: ["valzu-core", "valzu-blocks"],
   },
 });

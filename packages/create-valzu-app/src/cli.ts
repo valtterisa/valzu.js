@@ -1,7 +1,10 @@
-// packages/create-valzu-app/src/cli.ts
 import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
+import * as readline from "readline";
+
+const TEMPLATES = ["blank", "landing", "minimal", "product"] as const;
+type TemplateName = (typeof TEMPLATES)[number];
 
 function copyRecursiveSync(src: string, dest: string): void {
   if (fs.existsSync(src)) {
@@ -22,9 +25,39 @@ function copyRecursiveSync(src: string, dest: string): void {
   }
 }
 
-function createProject(projectName: string): void {
-  const templatePath = path.resolve(__dirname, "../template");
+function getTemplatePath(choice: TemplateName): string {
+  const base = path.resolve(__dirname, "..");
+  if (choice === "blank") {
+    return path.join(base, "template");
+  }
+  return path.join(base, `template-${choice}`);
+}
+
+function fixPackageJson(targetPath: string): void {
+  const pkgPath = path.join(targetPath, "package.json");
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+  let changed = false;
+  if (pkg.dependencies?.["valzu-core"] === "workspace:*") {
+    pkg.dependencies["valzu-core"] = "^2.0.0";
+    changed = true;
+  }
+  if (pkg.dependencies?.["valzu-blocks"] === "workspace:*") {
+    pkg.dependencies["valzu-blocks"] = "^1.0.0";
+    changed = true;
+  }
+  if (changed) {
+    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
+  }
+}
+
+function createProject(projectName: string, template: TemplateName): void {
+  const templatePath = getTemplatePath(template);
   const targetPath = path.resolve(process.cwd(), projectName);
+
+  if (!fs.existsSync(templatePath)) {
+    console.error(`❌ Template "${template}" not found at ${templatePath}`);
+    process.exit(1);
+  }
 
   if (fs.existsSync(targetPath)) {
     console.error(`❌ Project directory "${projectName}" already exists.`);
@@ -32,15 +65,9 @@ function createProject(projectName: string): void {
   }
 
   copyRecursiveSync(templatePath, targetPath);
-  const pkgPath = path.join(targetPath, "package.json");
-  const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
-  if (pkg.dependencies?.["valzu-core"] === "workspace:*") {
-    pkg.dependencies["valzu-core"] = "^2.0.0";
-    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
-  }
-  console.log(`✅ Project "${projectName}" created successfully!`);
+  fixPackageJson(targetPath);
+  console.log(`✅ Project "${projectName}" created with template "${template}"!`);
 
-  // Automatically install dependencies in the new project
   console.log("Installing dependencies... Please wait.");
   try {
     execSync("npm install", { cwd: targetPath, stdio: "inherit" });
@@ -51,19 +78,58 @@ function createProject(projectName: string): void {
     );
   }
 
-  // Print next steps for the user
   console.log(`\nNext steps:
   1. Change to the project directory: cd ${projectName}
   2. Run the development server: npm run dev
   3. Open your browser at http://localhost:3000 to view your app.\n`);
 }
 
-// Simple CLI argument parsing
-const args = process.argv.slice(2);
-if (args.length < 1) {
-  console.error("Usage: create-valzu-app <project-name>");
-  process.exit(1);
+function promptTemplate(): Promise<TemplateName> {
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  const question = (): Promise<string> =>
+    new Promise((resolve) => {
+      rl.question(
+        `Which template? (${TEMPLATES.join(" | ")}): `,
+        (answer) => {
+          rl.close();
+          resolve(answer.trim().toLowerCase() || "blank");
+        }
+      );
+    });
+
+  return question().then((answer: string) => {
+    if ((TEMPLATES as readonly string[]).includes(answer)) {
+      return answer as TemplateName;
+    }
+    return "blank";
+  });
 }
 
-const projectName = args[0];
-createProject(projectName);
+async function main(): Promise<void> {
+  const args = process.argv.slice(2);
+  let projectName: string | null = null;
+  let templateArg: string | null = null;
+
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--template" && args[i + 1]) {
+      templateArg = args[i + 1].toLowerCase();
+      i++;
+    } else if (!args[i].startsWith("-")) {
+      projectName = args[i];
+    }
+  }
+
+  if (!projectName) {
+    console.error("Usage: create-valzu-app <project-name> [--template blank|landing|minimal|product]");
+    process.exit(1);
+  }
+
+  const template: TemplateName =
+    templateArg && (TEMPLATES as readonly string[]).includes(templateArg)
+      ? (templateArg as TemplateName)
+      : await promptTemplate();
+
+  createProject(projectName as string, template);
+}
+
+main();

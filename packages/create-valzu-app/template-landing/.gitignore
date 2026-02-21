@@ -1,0 +1,5 @@
+node_modules
+dist
+.valzu
+*.log
+.DS_Store
