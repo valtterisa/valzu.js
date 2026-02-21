@@ -1,30 +1,41 @@
-# Valzu.js
+<div align="center">
 
-A modern, full-stack React framework with TypeScript and Vite. Server-side rendering for SEO and performance—built for fast client sites and content-focused apps.
+# ⚡ Valzu.js
 
----
+**A modern React framework for fast, SEO-ready client sites**
 
-## Motivation
+[![npm](https://img.shields.io/npm/v/valzu-core?color=6366f1&label=valzu-core&logo=npm)](https://www.npmjs.com/package/valzu-core)
+[![npm](https://img.shields.io/npm/v/create-valzu-app?color=6366f1&label=create-valzu-app&logo=npm)](https://www.npmjs.com/package/create-valzu-app)
+[![License: MIT](https://img.shields.io/badge/License-MIT-8b5cf6.svg)](LICENCE.md)
 
-I wanted to build my own framework for fast client sites. I can make sites fast that support the basics from start and are easy to use by the client itself—while still maintaining the speed of real code with AI.
+*TypeScript · Vite · SSR · React 18*
 
----
-
-## Features
-
-- **Vite powered** — Fast dev server and HMR
-- **React 18** — Hooks and concurrent features
-- **Server-side rendering** — SEO-friendly HTML from the server
-- **TypeScript** — Typed by default
-- **React Router** — Client-side routing with SSR
-- **SEO components** — `Head` and helpers for meta tags
-- **Small production builds** — Optimized with Vite
+</div>
 
 ---
 
-## Quick start
+## 💡 Motivation
 
-Create a new project:
+> I wanted to build my own framework for **fast client sites**. I can make sites fast that support the basics from start and are easy to use by the client itself—while still maintaining the speed of **real code with AI**.
+
+---
+
+## ✨ Why Valzu?
+
+| | |
+|:---:|:---|
+| 🚀 | **Vite** — Instant dev server, HMR, tiny production bundles |
+| ⚛️ | **React 18** — Hooks, Suspense, concurrent rendering |
+| 🔍 | **SSR** — Full server-side rendering for SEO and first paint |
+| 📝 | **TypeScript** — Typed from day one |
+| 🧭 | **React Router** — SPA routing with SSR support |
+| 📱 | **SEO** — `Head` component and meta helpers built in |
+
+---
+
+## 🚀 Quick start
+
+**Create a new app in one command:**
 
 ```bash
 npx create-valzu-app my-landing-page
@@ -32,22 +43,22 @@ cd my-landing-page
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Then open **http://localhost:3000** in your browser.
 
 ---
 
-## Project structure
+## 📁 Project structure
 
 ```
 my-landing-page/
 ├── src/
-│   ├── App.tsx
-│   ├── entry-client.tsx
-│   ├── entry-server.tsx
+│   ├── App.tsx              # App shell & routes
+│   ├── entry-client.tsx      # Client hydration
+│   ├── entry-server.tsx      # SSR entry
 │   └── pages/
 │       ├── Home.tsx
 │       └── About.tsx
-├── server.js
+├── server.js                 # Express SSR server
 ├── index.html
 ├── vite.config.ts
 └── package.json
@@ -55,9 +66,9 @@ my-landing-page/
 
 ---
 
-## SEO support
+## 📱 SEO support
 
-Use the `Head` component from `valzu-core` for meta tags (SSR-safe):
+Use the **`Head`** component from `valzu-core` for meta tags. Works with SSR out of the box.
 
 ```tsx
 import { Head } from "valzu-core";
@@ -84,7 +95,7 @@ export default function LandingPage() {
 ### Head props
 
 | Prop | Description |
-|------|--------------|
+|------|-------------|
 | `title` | Page title |
 | `description` | Meta description |
 | `keywords` | Meta keywords |
@@ -92,52 +103,52 @@ export default function LandingPage() {
 | `ogDescription` | Open Graph description |
 | `ogImage` | Open Graph image URL |
 | `ogUrl` | Open Graph URL |
-| `ogType` | Open Graph type (e.g. website, article) |
+| `ogType` | Open Graph type (e.g. `website`, `article`) |
 | `twitterCard` | Twitter card type |
-| `twitterSite` | Twitter site handle |
-| `twitterCreator` | Twitter creator handle |
+| `twitterSite` | Twitter @handle |
+| `twitterCreator` | Creator @handle |
 | `canonical` | Canonical URL |
 | `robots` | Robots meta directive |
 
 ---
 
-## Scripts
+## 📜 Scripts
 
 | Command | Description |
-|---------|-------------|
-| `npm run dev` | Development server with HMR |
+|--------|-------------|
+| `npm run dev` | Start dev server with HMR |
 | `npm run build` | Production build |
 | `npm run preview` | Run production build locally |
 
 ---
 
-## Monorepo development
+## 🛠 Monorepo development
 
-This repo is a pnpm + Turborepo monorepo. To work on valzu-core and the template together:
+This repo is a **pnpm + Turborepo** monorepo. To hack on `valzu-core` and the template together:
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-Runs valzu-core in watch mode and the template app; changes to valzu-core are reflected in the template.
+This runs **valzu-core** in watch mode and the **template app**; edits to the core package are reflected in the template live.
 
 ---
 
-## Deployment
+## 🌐 Deployment
 
 ### Vercel
 
-1. Connect the repo to Vercel.
-2. Build command: `npm run build`
-3. Output directory: `dist/client`
-4. Set `NODE_ENV=production`
+1. Connect your repo to Vercel.
+2. **Build command:** `npm run build`
+3. **Output directory:** `dist/client`
+4. **Environment:** `NODE_ENV=production`
 
 ### Railway / Render
 
 1. Connect the repo.
-2. Build: `npm run build`
-3. Start: `npm run preview`
+2. **Build:** `npm run build`
+3. **Start:** `npm run preview`
 
 ### Docker
 
@@ -155,12 +166,10 @@ CMD ["node", "server.js"]
 
 ---
 
-## Contributing
+<div align="center">
 
-Issues and pull requests are welcome.
+**Contributions welcome** — open an issue or send a PR.
 
----
+**[MIT License](LICENCE.md)**
 
-## License
-
-MIT. See [LICENCE.md](LICENCE.md).
+</div>
