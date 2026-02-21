@@ -1,1 +1,1 @@
-{"compilerOptions":{"composite":true,"baseUrl":".","paths":{"@landr/core":["packages/valzu-core/src"]}},"include":["packages/**/*"]}
+{"compilerOptions":{"composite":true,"baseUrl":".","paths":{"@landrr/core":["packages/valzu-core/src"]}},"include":["packages/**/*"]}

@@ -15,7 +15,7 @@ importers:
         specifier: ^2.3.0
         version: 2.8.10
 
-  packages/create-landr-app:
+  packages/create-landrr-app:
     devDependencies:
       '@types/node':
         specifier: ^20.11.0
@@ -24,11 +24,11 @@ importers:
         specifier: ^4.8.4
         version: 4.9.5
 
-  packages/create-landr-app/template:
+  packages/create-landrr-app/template:
     dependencies:
-      '@landr/core':
+      '@landrr/core':
         specifier: workspace:*
-        version: link:../../valzu-core
+        version: link:../../landrr-core
       compression:
         specifier: ^1.7.4
         version: 1.8.1
@@ -82,7 +82,7 @@ importers:
         specifier: ^5.0.12
         version: 5.4.21(@types/node@20.19.33)(lightningcss@1.31.1)
 
-  packages/valzu-blocks:
+  packages/landrr-blocks:
     dependencies:
       class-variance-authority:
         specifier: ^0.7.0
@@ -97,9 +97,9 @@ importers:
         specifier: ^2.2.0
         version: 2.6.1
     devDependencies:
-      '@landr/core':
+      '@landrr/core':
         specifier: workspace:*
-        version: link:../valzu-core
+        version: link:../landrr-core
       '@types/react':
         specifier: ^18.2.0
         version: 18.3.28
@@ -119,7 +119,7 @@ importers:
         specifier: ^5.3.3
         version: 5.9.3
 
-  packages/valzu-core:
+  packages/landrr-core:
     devDependencies:
       '@types/node':
         specifier: ^20.11.0

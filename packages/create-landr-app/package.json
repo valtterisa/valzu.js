@@ -1,1 +1,0 @@
-{"name":"create-landr-app","version":"2.0.0","bin":{"create-landr-app":"./bin/create-landr-app"},"publishConfig":{"access":"public"},"scripts":{"build":"tsc"},"devDependencies":{"@types/node":"^20.11.0","typescript":"^4.8.4"}}

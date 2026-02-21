@@ -1,5 +1,5 @@
 {
-  "name": "landr.js",
+  "name": "landrr.js",
   "private": true,
   "packageManager": "pnpm@9.15.0",
   "workspaces": [
@@ -8,18 +8,18 @@
   "scripts": {
     "build": "turbo run build",
     "build:all": "turbo run build",
-    "build:cli": "pnpm --filter create-landr-app build",
-    "build:core": "pnpm --filter @landr/core build",
-    "build:blocks": "pnpm --filter @landr/blocks build",
+    "build:cli": "pnpm --filter create-landrr-app build",
+    "build:core": "pnpm --filter @landrr/core build",
+    "build:blocks": "pnpm --filter @landrr/blocks build",
     "dev": "turbo run dev",
-    "create": "node packages/create-landr-app/bin/create-landr-app",
-    "create:demo": "pnpm run build:cli && pnpm run create -- landr-demo --template landing",
+    "create": "node packages/create-landrr-app/bin/create-landrr-app",
+    "create:demo": "pnpm run build:cli && pnpm run create -- landrr-demo --template landing",
     "changeset": "changeset",
     "version": "changeset version",
     "publish:packages": "pnpm run build && changeset publish",
-    "publish:core": "pnpm --filter @landr/core exec npm publish --access public",
-    "publish:cli": "pnpm run build:cli && pnpm --filter create-landr-app exec npm publish --access public",
-    "publish:blocks": "pnpm --filter @landr/blocks exec npm publish --access public",
+    "publish:core": "pnpm --filter @landrr/core exec npm publish --access public",
+    "publish:cli": "pnpm run build:cli && pnpm --filter create-landrr-app exec npm publish --access public",
+    "publish:blocks": "pnpm --filter @landrr/blocks exec npm publish --access public",
     "publish:all": "pnpm run publish:core && pnpm run publish:cli"
   },
   "devDependencies": {
