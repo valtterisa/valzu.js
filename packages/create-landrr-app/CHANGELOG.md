@@ -1,5 +1,11 @@
 # create-landrr-app
 
+## 4.0.0
+
+### Major Changes
+
+- Added React + Vite, templates and components
+
 ## 3.0.0
 
 ### Major Changes

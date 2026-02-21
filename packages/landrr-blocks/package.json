@@ -1,6 +1,6 @@
 {
   "name": "@landrr/blocks",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -31,7 +31,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.0.0",
-    "@landrr/core": "^4.0.0"
+    "@landrr/core": "^5.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",

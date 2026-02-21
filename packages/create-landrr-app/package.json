@@ -1,6 +1,6 @@
 {
   "name": "create-landrr-app",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "bin": {
     "create-landrr-app": "./bin/create-landrr-app"
   },

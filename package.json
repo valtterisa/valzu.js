@@ -20,7 +20,7 @@
     "publish:core": "pnpm --filter @landrr/core exec npm publish --access public",
     "publish:cli": "pnpm run build:cli && pnpm --filter create-landrr-app exec npm publish --access public",
     "publish:blocks": "pnpm --filter @landrr/blocks exec npm publish --access public",
-    "publish:all": "pnpm run publish:core && pnpm run publish:cli"
+    "publish:all": "pnpm run publish:core && pnpm run publish:cli && pnpm run publish:blocks"
   },
   "devDependencies": {
     "@changesets/cli": "0.0.0-pr1845.8583df5",

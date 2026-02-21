@@ -1,5 +1,16 @@
 # @landrr/blocks
 
+## 4.0.0
+
+### Major Changes
+
+- Added React + Vite, templates and components
+
+### Patch Changes
+
+- Updated dependencies
+  - @landrr/core@5.0.0
+
 ## 3.0.0
 
 ### Major Changes

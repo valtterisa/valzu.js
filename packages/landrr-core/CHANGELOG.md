@@ -1,5 +1,11 @@
 # @landrr/core
 
+## 5.0.0
+
+### Major Changes
+
+- Added React + Vite, templates and components
+
 ## 4.0.0
 
 ### Major Changes
