@@ -77,8 +77,8 @@ export function useServerDev(options) {
                     throw new Error(`Component not found in ${file}`);
                 const vnode = await Component();
                 const appHtml = renderToString(vnode);
-                // Load the template from the project root using __dirname.
-                const templatePath = path.resolve(__dirname, "index.html");
+                // Load the template from the project root.
+                const templatePath = path.resolve(cwd, "index.html");
                 let template = fs.readFileSync(templatePath, "utf8");
                 template = template.replace('<div id="app"></div>', `<div id="app">${appHtml}</div>`);
                 // Inject client bundle and HMR client code (using SSE).

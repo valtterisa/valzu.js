@@ -4,6 +4,10 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import { renderToString } from "./utils";
+/**
+ * Legacy server for backward compatibility
+ * @deprecated Use the Vite SSR setup instead
+ */
 export function useServer(options) {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
@@ -41,6 +45,8 @@ export function useServer(options) {
             });
             return;
         }
+        // If you had other static assets before in the public directory,
+        // you may need to update or remove this block if they're no longer used.
         const staticPath = path.resolve(cwd, "." + reqUrl);
         if (fs.existsSync(staticPath) && fs.statSync(staticPath).isFile()) {
             let contentType = "text/plain";
@@ -76,7 +82,8 @@ export function useServer(options) {
                 }
                 const vnode = await Component();
                 const appHtml = renderToString(vnode);
-                const templatePath = path.resolve(__dirname, "index.html");
+                // Read the HTML template from the project root.
+                const templatePath = path.resolve(cwd, "index.html");
                 let template = fs.readFileSync(templatePath, "utf8");
                 template = template.replace('<div id="app"></div>', `<div id="app">${appHtml}</div>`);
                 template = template.replace("</body>", `<script type="module" src="/client.js"></script></body>`);
@@ -97,4 +104,26 @@ export function useServer(options) {
     server.listen(port, () => {
         console.log(`✅ Production server running on http://localhost:${port}`);
     });
+}
+/**
+ * Creates an SSR handler for Express.js
+ * Use this with Vite in production for React-based SSR
+ */
+export function createSSRHandler(options) {
+    return async (req, res) => {
+        try {
+            const url = req.originalUrl || req.url;
+            const { html, head } = await options.render(url);
+            let finalHtml = options.template;
+            // Replace the head placeholder with collected SEO tags
+            finalHtml = finalHtml.replace("<!--head-tags-->", head);
+            // Replace the app placeholder with rendered HTML
+            finalHtml = finalHtml.replace("<!--ssr-outlet-->", html);
+            res.status(200).set({ "Content-Type": "text/html" }).end(finalHtml);
+        }
+        catch (e) {
+            console.error("SSR Error:", e);
+            res.status(500).end("Internal Server Error");
+        }
+    };
 }

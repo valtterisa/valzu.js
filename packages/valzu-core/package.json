@@ -1,15 +1,40 @@
 {
   "name": "valzu-core",
-  "version": "1.0.22",
+  "version": "2.0.0",
   "type": "module",
-  "main": "dist/server.js",
-  "browser": "dist/client.js",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./server": {
+      "import": "./dist/server.js",
+      "types": "./dist/server.d.ts"
+    },
+    "./client": {
+      "import": "./dist/client.js",
+      "types": "./dist/client.d.ts"
+    },
+    "./seo": {
+      "import": "./dist/seo.js",
+      "types": "./dist/seo.d.ts"
+    }
+  },
   "scripts": {
     "build": "tsc"
   },
-  "dependencies": {},
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
   "devDependencies": {
-    "typescript": "^4.8.4"
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.3.3"
   }
 }

@@ -1,12 +1,14 @@
 /**
- * Create JSX-like elements.
+ * Create JSX-like elements (legacy API).
+ * @deprecated Use React components instead
  */
 export function element(type, props = {}, ...children) {
     const vnode = { type, props, children };
     return vnode;
 }
 /**
- * Render a virtual DOM node (or tree) to an HTML string.
+ * Render a virtual DOM node (or tree) to an HTML string (legacy API).
+ * @deprecated Use React's renderToString instead
  */
 export function renderToString(vnode) {
     if (typeof vnode === "string")
@@ -23,7 +25,8 @@ export function renderToString(vnode) {
 }
 /**
  * Hydrate the server-rendered content by binding events
- * from the virtual DOM (vDOM) to the actual DOM.
+ * from the virtual DOM (vDOM) to the actual DOM (legacy API).
+ * @deprecated Use React's hydrateRoot instead
  */
 export function hydrate(container) {
     if (!container) {

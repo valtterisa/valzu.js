@@ -11,6 +11,10 @@ export interface ServerOptions {
   port?: number;
 }
 
+/**
+ * Legacy server for backward compatibility
+ * @deprecated Use the Vite SSR setup instead
+ */
 export function useServer(options?: ServerOptions): void {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
@@ -121,3 +125,33 @@ export function useServer(options?: ServerOptions): void {
     console.log(`✅ Production server running on http://localhost:${port}`);
   });
 }
+
+/**
+ * Creates an SSR handler for Express.js
+ * Use this with Vite in production for React-based SSR
+ */
+export function createSSRHandler(options: {
+  template: string;
+  render: (url: string) => Promise<{ html: string; head: string }>;
+}) {
+  return async (req: any, res: any) => {
+    try {
+      const url = req.originalUrl || req.url;
+      const { html, head } = await options.render(url);
+
+      let finalHtml = options.template;
+      
+      // Replace the head placeholder with collected SEO tags
+      finalHtml = finalHtml.replace("<!--head-tags-->", head);
+      
+      // Replace the app placeholder with rendered HTML
+      finalHtml = finalHtml.replace("<!--ssr-outlet-->", html);
+
+      res.status(200).set({ "Content-Type": "text/html" }).end(finalHtml);
+    } catch (e) {
+      console.error("SSR Error:", e);
+      res.status(500).end("Internal Server Error");
+    }
+  };
+}
+
