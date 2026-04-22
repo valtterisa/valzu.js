@@ -1,3 +1,293 @@
+import { Elysia } from "elysia";
+import { lookup as lookupMimeType } from "mime-types";
+import fs from "node:fs/promises";
+import { createServer } from "node:http";
+import path from "node:path";
+import { Readable } from "node:stream";
+
+export function createServerApp() {
+  return new Elysia();
+}
+
+export function resolveMimeType(pathname: string) {
+  return lookupMimeType(pathname);
+}
+
+export async function createViteRuntime(options: {
+  isProduction: boolean;
+  port: number;
+  devAssetPort: number;
+}) {
+  let vite;
+  if (!options.isProduction) {
+    const { createServer: createViteServer } = await import("vite");
+    vite = await createViteServer({
+      server: {
+        middlewareMode: true,
+        hmr: {
+          clientPort: options.port,
+          port: options.devAssetPort,
+          host: "localhost",
+        },
+      },
+      appType: "custom",
+    });
+  }
+  return { vite };
+}
+
+export async function runViteMiddlewares(vite: any, request: any, response: any) {
+  await new Promise<void>((resolve, reject) => {
+    vite.middlewares(request, response, (error: any) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve();
+      }
+    });
+  });
+  return Boolean(response.writableEnded);
+}
+
+export function toWebRequest(
+  request: {
+    headers: { host?: string };
+    url?: string;
+    method?: string;
+  } & Readable,
+  port: number
+) {
+  const host = request.headers.host ?? `localhost:${port}`;
+  const url = `http://${host}${request.url ?? "/"}`;
+  const method = request.method ?? "GET";
+  const body = method === "GET" || method === "HEAD" ? undefined : request;
+  if (!body) {
+    return new Request(url, {
+      method,
+      headers: request.headers as HeadersInit,
+    });
+  }
+  return new Request(
+    url,
+    {
+      method,
+      headers: request.headers as HeadersInit,
+      body: body as unknown as BodyInit,
+      duplex: "half",
+    } as any
+  );
+}
+
+export async function sendNodeResponse(
+  response: {
+    statusCode: number;
+    setHeader: (name: string, value: string) => void;
+    end: () => void;
+  } & NodeJS.WritableStream,
+  webResponse: Response
+) {
+  response.statusCode = webResponse.status;
+  for (const [key, value] of webResponse.headers.entries()) {
+    response.setHeader(key, value);
+  }
+  if (!webResponse.body) {
+    response.end();
+    return;
+  }
+  Readable.fromWeb(webResponse.body as never).pipe(response);
+}
+
+export async function tryServeClientAsset(options: {
+  isProduction: boolean;
+  clientDistRoot: string;
+  pathname: string;
+}) {
+  if (!options.isProduction || options.pathname.endsWith("/")) {
+    return null;
+  }
+  const relativePath = decodeURIComponent(options.pathname).replace(/^\/+/, "");
+  if (!relativePath) {
+    return null;
+  }
+  const assetPath = path.resolve(options.clientDistRoot, relativePath);
+  if (!assetPath.startsWith(options.clientDistRoot)) {
+    return new Response("Not Found", { status: 404 });
+  }
+  try {
+    const file = await fs.readFile(assetPath);
+    const headers = new Headers();
+    const mimeType = resolveMimeType(assetPath);
+    if (mimeType) {
+      headers.set("content-type", mimeType);
+    }
+    return new Response(file, { status: 200, headers });
+  } catch {
+    return null;
+  }
+}
+
+export function createNodeHttpServer(handler: (request: any, response: any) => void | Promise<void>) {
+  return createServer(handler);
+}
+
+export function attachViteUpgrade(options: {
+  isProduction: boolean;
+  runtime: any;
+  server: any;
+}): void {
+  if (!options.isProduction && options.runtime.vite) {
+    options.server.on("upgrade", (request: any, socket: any, head: any) => {
+      options.runtime.vite?.ws?.handleUpgrade?.(request, socket, head);
+    });
+  }
+}
+
+export async function shutdownRuntime(options: {
+  runtime: { vite?: { close: () => Promise<void> } };
+  server: { stop?: () => Promise<void>; close?: (cb: () => void) => void };
+}) {
+  if (options.runtime.vite) {
+    await options.runtime.vite.close();
+  }
+  if (typeof options.server.stop === "function") {
+    await options.server.stop();
+    return;
+  }
+  if (typeof options.server.close === "function") {
+    await new Promise<void>((resolve) => options.server.close?.(resolve));
+  }
+}
+
+export async function startLandrrServer(options: {
+  rootDir: string;
+  port?: number;
+  devAssetPort?: number;
+  isProduction?: boolean;
+}) {
+  const isProduction = options.isProduction ?? process.env.NODE_ENV === "production";
+  const port = options.port ?? Number(process.env.PORT || 3000);
+  const devAssetPort = options.devAssetPort ?? Number(process.env.LANDRR_VITE_PORT || 5174);
+  const app = createServerApp();
+  const clientDistRoot = path.resolve(options.rootDir, "dist/client");
+  const runtime = await createViteRuntime({ isProduction, port, devAssetPort });
+  let shuttingDown = false;
+
+  async function loadServerModules() {
+    return !isProduction
+      ? await runtime.vite!.ssrLoadModule("/src/server-modules.ts")
+      : await import(path.resolve(options.rootDir, "./dist/server/server-modules.js"));
+  }
+
+  app.all("/webhook/cms", async ({ request }: { request: Request }) => {
+    const modules = await loadServerModules();
+    if (request.method === "GET" && modules.webhookCmsGet) {
+      return modules.webhookCmsGet({ request });
+    }
+    if (request.method === "POST" && modules.webhookCmsPost) {
+      return modules.webhookCmsPost({ request });
+    }
+    return new Response("Method Not Allowed", { status: 405 });
+  });
+
+  app.all("*", async ({ request }: { request: Request }) => {
+    const url = new URL(request.url);
+    const pathname = url.pathname;
+    const staticAssetResponse = await tryServeClientAsset({
+      isProduction,
+      clientDistRoot,
+      pathname,
+    });
+    if (staticAssetResponse) {
+      return staticAssetResponse;
+    }
+
+    try {
+      const template = !isProduction
+        ? await fs.readFile(path.join(options.rootDir, "index.html"), "utf-8")
+        : await fs.readFile(path.join(options.rootDir, "dist/client/index.html"), "utf-8");
+      const transformedTemplate = !isProduction
+        ? await runtime.vite!.transformIndexHtml(pathname, template)
+        : template;
+      const modules = await loadServerModules();
+
+      const { module: routeModule, params } = resolveRouteModule(pathname, modules.routes);
+      const routeData = await runServerDataLoader(routeModule, {
+        url: pathname,
+        params,
+        query: Object.fromEntries(url.searchParams.entries()),
+        request,
+      });
+
+      const initialRouteData = { [pathname]: routeData };
+      const rendered = await renderDocument({
+        render: modules.render,
+        url: pathname,
+        props: initialRouteData,
+      });
+
+      const html = transformedTemplate
+        .replace("<!--head-tags-->", rendered.head ?? "")
+        .replace("<!--ssr-outlet-->", rendered.html ?? "")
+        .replace(
+          "<!--app-data-->",
+          `<script>window.__LANDRR_DATA__=${safeSerialize(initialRouteData)}</script>`
+        );
+
+      return new Response(html, {
+        status: 200,
+        headers: { "content-type": "text/html; charset=utf-8" },
+      });
+    } catch (error) {
+      if (!isProduction && runtime.vite) {
+        runtime.vite.ssrFixStacktrace(error as Error);
+      }
+      console.error(error);
+      return new Response("Internal Server Error", { status: 500 });
+    }
+  });
+
+  const server = createNodeHttpServer(async (request, response) => {
+    try {
+      if (!isProduction && runtime.vite) {
+        const handled = await runViteMiddlewares(runtime.vite, request, response);
+        if (handled) {
+          return;
+        }
+      }
+      const webRequest = toWebRequest(request, port);
+      const webResponse = await app.fetch(webRequest);
+      await sendNodeResponse(response, webResponse);
+    } catch (error) {
+      if (!isProduction && runtime.vite) {
+        runtime.vite.ssrFixStacktrace(error as Error);
+      }
+      console.error(error);
+      response.statusCode = 500;
+      response.end("Internal Server Error");
+    }
+  }).listen(port);
+
+  attachViteUpgrade({ isProduction, runtime, server });
+
+  const shutdown = async () => {
+    if (shuttingDown) {
+      return;
+    }
+    shuttingDown = true;
+    try {
+      await shutdownRuntime({ runtime, server });
+    } finally {
+      process.exit(0);
+    }
+  };
+
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
+  process.on("beforeExit", shutdown);
+
+  return { app, runtime, server, shutdown };
+}
+
 export type JsonValue =
   | string
   | number
