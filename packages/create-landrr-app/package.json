@@ -7,13 +7,14 @@
   "files": [
     "bin",
     "dist",
-    "template",
-    "template-minimal",
-    "template-landing",
-    "template-product"
+    "template"
   ],
   "publishConfig": {
     "access": "public"
+  },
+  "landrrDependencyVersions": {
+    "@landrr/core": "^7.0.0",
+    "@landrr/blocks": "^6.0.0"
   },
   "scripts": {
     "build": "tsc",

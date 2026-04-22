@@ -1,4 +1,4 @@
-import { revalidateTag } from "@landrr/core";
+import { revalidateTag } from "@landrr/core/server";
 
 interface WebhookContext {
   request: Request;

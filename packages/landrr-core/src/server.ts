@@ -201,6 +201,9 @@ export async function startLandrrServer(options: {
     if (staticAssetResponse) {
       return staticAssetResponse;
     }
+    if (pathname.includes(".")) {
+      return new Response("Not Found", { status: 404 });
+    }
 
     try {
       const template = !isProduction
