@@ -1,5 +1,11 @@
 # create-landrr-app
 
+## 6.2.0
+
+### Minor Changes
+
+- bug fix
+
 ## 6.1.0
 
 ### Minor Changes

@@ -16,7 +16,7 @@ const devAssetPort = Number(process.env.LANDRR_VITE_PORT || 5174);
 
 const app = new Elysia();
 
-const ASSET_PREFIXES = ["/@vite", "/src/", "/node_modules/", "/@fs/", "/@id/"];
+const ASSET_PREFIXES = ["/@vite", "/@react-refresh", "/src/", "/node_modules/", "/@fs/", "/@id/"];
 const ASSET_EXTENSIONS = [".js", ".ts", ".tsx", ".css", ".map", ".json", ".ico", ".svg", ".png", ".jpg", ".jpeg", ".gif", ".woff", ".woff2"];
 
 function isAssetRequest(pathname) {
@@ -99,8 +99,9 @@ app.all("*", async ({ request }) => {
       : await fs.readFile(path.join(__dirname, "dist/client/index.html"), "utf-8");
     const transformedTemplate = !isProduction
       ? (await runtime.vite.transformIndexHtml(pathname, template))
-          .replaceAll('"/@vite/', `"${runtime.viteOrigin}/@vite/`)
-          .replaceAll('"/src/', `"${runtime.viteOrigin}/src/`)
+          .replaceAll('"/@vite/', '"/@vite/')
+          .replaceAll('"/@react-refresh', '"/@react-refresh')
+          .replaceAll('"/src/', '"/src/')
       : template;
     const modules = !isProduction
       ? await runtime.vite.ssrLoadModule("/src/server-modules.ts")
@@ -142,4 +143,9 @@ app.all("*", async ({ request }) => {
   }
 });
 
-app.listen(port);
+if (typeof Bun !== "undefined") {
+  app.listen(port);
+} else {
+  const { createServer } = await import("node:http");
+  createServer(app.fetch).listen(port);
+}
