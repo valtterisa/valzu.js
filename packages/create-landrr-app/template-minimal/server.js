@@ -39,6 +39,17 @@ function getContentType(filePath) {
   return "application/octet-stream";
 }
 
+function createProxiedAssetResponse(upstreamResponse) {
+  const headers = new Headers(upstreamResponse.headers);
+  headers.delete("content-encoding");
+  headers.delete("content-length");
+  headers.delete("transfer-encoding");
+  return new Response(upstreamResponse.body, {
+    status: upstreamResponse.status,
+    headers,
+  });
+}
+
 async function createRuntime() {
   let vite;
   let viteOrigin = "";
@@ -52,12 +63,13 @@ async function createRuntime() {
     const addressInfo = vite.httpServer?.address();
     const resolvedPort =
       addressInfo && typeof addressInfo === "object" ? addressInfo.port : devAssetPort;
-    viteOrigin = `http://127.0.0.1:${resolvedPort}`;
+    viteOrigin = `http://localhost:${resolvedPort}`;
   }
   return { vite, viteOrigin };
 }
 
 const runtime = await createRuntime();
+let shuttingDown = false;
 
 app.all("/webhook/cms", async ({ request }) => {
   const modules = !isProduction
@@ -77,7 +89,13 @@ app.all("*", async ({ request }) => {
   const pathname = url.pathname;
 
   if (!isProduction && isAssetRequest(pathname)) {
-    return fetch(`${runtime.viteOrigin}${url.pathname}${url.search}`);
+    try {
+      const upstreamResponse = await fetch(`${runtime.viteOrigin}${url.pathname}${url.search}`);
+      return createProxiedAssetResponse(upstreamResponse);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to proxy asset request";
+      return new Response(message, { status: 502 });
+    }
   }
 
   if (isProduction && isAssetRequest(pathname)) {
@@ -143,9 +161,35 @@ app.all("*", async ({ request }) => {
   }
 });
 
+let server;
 if (typeof Bun !== "undefined") {
-  app.listen(port);
+  server = app.listen(port);
 } else {
   const { createServer } = await import("node:http");
-  createServer(app.fetch).listen(port);
+  server = createServer(app.fetch).listen(port);
 }
+
+async function shutdown() {
+  if (shuttingDown) {
+    return;
+  }
+  shuttingDown = true;
+  try {
+    if (runtime.vite) {
+      await runtime.vite.close();
+    }
+    if (server && typeof server === "object") {
+      if ("stop" in server && typeof server.stop === "function") {
+        await server.stop();
+      } else if ("close" in server && typeof server.close === "function") {
+        await new Promise((resolve) => server.close(resolve));
+      }
+    }
+  } finally {
+    process.exit(0);
+  }
+}
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
+process.on("beforeExit", shutdown);
