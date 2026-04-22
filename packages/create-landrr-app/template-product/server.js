@@ -44,9 +44,10 @@ async function createRuntime() {
   if (!isProduction) {
     const { createServer } = await import("vite");
     vite = await createServer({
-      server: { port: devAssetPort },
+      server: { port: devAssetPort, strictPort: true },
       appType: "custom",
     });
+    await vite.listen();
   }
   return { vite };
 }
@@ -92,7 +93,9 @@ app.all("*", async ({ request }) => {
       ? await fs.readFile(path.join(__dirname, "index.html"), "utf-8")
       : await fs.readFile(path.join(__dirname, "dist/client/index.html"), "utf-8");
     const transformedTemplate = !isProduction
-      ? await runtime.vite.transformIndexHtml(pathname, template)
+      ? (await runtime.vite.transformIndexHtml(pathname, template))
+          .replaceAll('"/@vite/', `"http://127.0.0.1:${devAssetPort}/@vite/`)
+          .replaceAll('"/src/', `"http://127.0.0.1:${devAssetPort}/src/`)
       : template;
     const modules = !isProduction
       ? await runtime.vite.ssrLoadModule("/src/server-modules.ts")

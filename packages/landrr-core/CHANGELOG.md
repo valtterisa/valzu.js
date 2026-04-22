@@ -1,5 +1,11 @@
 # @landrr/core
 
+## 7.0.0
+
+### Major Changes
+
+- 42979d2: Added server side rendering with Elysia.js
+
 ## 5.0.0
 
 ### Major Changes

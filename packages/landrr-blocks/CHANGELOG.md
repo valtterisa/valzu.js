@@ -1,5 +1,16 @@
 # @landrr/blocks
 
+## 6.0.0
+
+### Major Changes
+
+- 42979d2: Added server side rendering with Elysia.js
+
+### Patch Changes
+
+- Updated dependencies [42979d2]
+  - @landrr/core@7.0.0
+
 ## 4.0.0
 
 ### Major Changes

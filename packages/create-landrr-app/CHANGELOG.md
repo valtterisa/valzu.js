@@ -1,5 +1,17 @@
 # create-landrr-app
 
+## 6.0.0
+
+### Major Changes
+
+- 42979d2: Added server side rendering with Elysia.js
+
+### Minor Changes
+
+- 4858582: fixed error on cli not working
+- bug fixes
+- bug fixes
+
 ## 4.0.0
 
 ### Major Changes
