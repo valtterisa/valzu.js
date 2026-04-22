@@ -1,7 +1,17 @@
 import { Head } from "@landrr/core";
 import { Link } from "react-router-dom";
 
-export default function About() {
+interface AboutProps {
+  serverData?: Record<string, unknown>;
+}
+
+export async function getServerData() {
+  return {
+    framework: "landrr",
+  };
+}
+
+export default function About({ serverData }: AboutProps) {
   return (
     <>
       <Head
@@ -22,6 +32,9 @@ export default function About() {
             TypeScript, React, and Vite. It's designed for building
             high-performance, SEO-friendly landing pages with server-side
             rendering.
+          </p>
+          <p className="text-muted-foreground mb-6">
+            Loader value: {(serverData?.framework as string | undefined) ?? "n/a"}
           </p>
 
           <section className="mb-6">

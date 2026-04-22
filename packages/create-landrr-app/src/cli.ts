@@ -53,9 +53,9 @@ function createProject(projectName: string, template: TemplateName): void {
   let pkg = fs.readFileSync(pkgPath, "utf-8");
   if (pkg.includes("workspace:*")) {
     pkg = pkg
-      .replace(/"@landrr\/core"\s*:\s*"workspace:\*"/g, '"@landrr/core": "^4.0.0"')
+      .replace(/"@landrr\/core"\s*:\s*"workspace:\*"/g, '"@landrr/core": "^6.0.0"')
       .replace(/"@landrr\/blocks"\s*:\s*"workspace:\*"/g, '"@landrr/blocks": "^2.0.0"')
-      .replace(/"valzu-core"\s*:\s*"workspace:\*"/g, '"@landrr/core": "^4.0.0"')
+      .replace(/"valzu-core"\s*:\s*"workspace:\*"/g, '"@landrr/core": "^6.0.0"')
       .replace(/"valzu-blocks"\s*:\s*"workspace:\*"/g, '"@landrr/blocks": "^2.0.0"')
       .replace(/"([^"]+)"\s*:\s*"workspace:\*"/g, '"$1": "*"');
     fs.writeFileSync(pkgPath, pkg);

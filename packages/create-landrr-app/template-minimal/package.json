@@ -3,25 +3,21 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node server.js",
+    "dev": "bun server.js",
     "build": "pnpm run build:client && pnpm run build:server",
     "build:client": "vite build --ssrManifest --outDir dist/client",
-    "build:server": "vite build --ssr src/entry-server.tsx --outDir dist/server",
-    "preview": "cross-env NODE_ENV=production node server.js"
+    "build:server": "vite build --ssr src/server-modules.ts --outDir dist/server",
+    "preview": "cross-env NODE_ENV=production bun server.js"
   },
   "dependencies": {
-    "compression": "^1.7.4",
-    "express": "^4.18.2",
+    "elysia": "^1.4.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.0",
-    "sirv": "^2.0.4",
     "@landrr/core": "workspace:*",
     "@landrr/blocks": "workspace:*"
   },
   "devDependencies": {
-    "@types/compression": "^1.7.5",
-    "@types/express": "^4.17.21",
     "@types/node": "^20.11.0",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",

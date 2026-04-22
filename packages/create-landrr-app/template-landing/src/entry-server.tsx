@@ -7,15 +7,22 @@ import {
   renderHeadToString,
 } from "@landrr/core";
 import App from "./App";
+import * as HomePage from "./pages/Home";
+import * as AboutPage from "./pages/About";
 
-export function render(url: string) {
+export const routes = {
+  "/": HomePage,
+  "/about": AboutPage,
+};
+
+export function render(url: string, initialRouteData: Record<string, Record<string, unknown>> = {}) {
   const headContext = createHeadContext();
 
   const html = renderToString(
     <StrictMode>
       <HeadProvider value={headContext}>
         <StaticRouter location={url}>
-          <App />
+          <App initialRouteData={initialRouteData} />
         </StaticRouter>
       </HeadProvider>
     </StrictMode>

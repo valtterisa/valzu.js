@@ -1,6 +1,6 @@
 # My Landrr.js App
 
-A modern React application built with Landrr.js, featuring server-side rendering powered by Vite for optimal SEO and performance.
+A modern React application built with Landrr.js, featuring Bun + Elysia server runtime and Vite SSR for SEO and performance.
 
 ## Getting Started
 
@@ -35,10 +35,12 @@ pnpm run preview
 │   ├── App.tsx           # Main app component with routes
 │   ├── entry-client.tsx  # Client-side hydration entry
 │   ├── entry-server.tsx  # Server-side rendering entry
+│   ├── server-modules.ts # SSR + webhook server module entry
+│   ├── webhook/          # File-based webhook routes
 │   └── pages/            # Page components
 │       ├── Home.tsx
 │       └── About.tsx
-├── server.js             # Express server for SSR
+├── server.js             # Bun + Elysia server for SSR
 ├── index.html            # HTML template
 ├── styles.css            # Global styles
 ├── vite.config.ts        # Vite configuration
@@ -49,7 +51,7 @@ pnpm run preview
 
 - ⚡ **Vite** - Lightning-fast development with HMR
 - ⚛️ **React 18** - Modern React with hooks
-- 🔍 **SSR** - Server-side rendering for SEO
+- 🔍 **SSR + getServerData** - Server-side data loading for SEO
 - 🎯 **React Router** - Client-side routing
 - 📝 **TypeScript** - Full type safety
 - 🎨 **CSS** - Simple, responsive styling
@@ -79,6 +81,7 @@ export default function MyPage() {
 
 1. Create a new component in `src/pages/`
 2. Add a route in `src/App.tsx`
+3. Optionally add `export async function getServerData(ctx)` in the page module
 
 Example:
 
@@ -110,7 +113,7 @@ export default function App() {
 
 ## Deployment
 
-This app can be deployed to any Node.js hosting platform:
+This app can be deployed to any Bun-compatible hosting platform:
 
 - **Vercel** - Zero-config deployment
 - **Railway** - Easy container deployment

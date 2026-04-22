@@ -1,7 +1,17 @@
 import { Head } from "@landrr/core";
 import { Link } from "react-router-dom";
 
-export default function Home() {
+interface HomeProps {
+  serverData?: Record<string, unknown>;
+}
+
+export async function getServerData() {
+  return {
+    renderedAt: new Date().toISOString(),
+  };
+}
+
+export default function Home({ serverData }: HomeProps) {
   return (
     <>
       <Head
@@ -21,6 +31,9 @@ export default function Home() {
           <p className="text-muted-foreground mb-6">
             A modern React framework with Vite SSR for building SEO-friendly
             landing pages.
+          </p>
+          <p className="text-muted-foreground mb-6">
+            SSR timestamp: {(serverData?.renderedAt as string | undefined) ?? "n/a"}
           </p>
 
           <section className="mb-6">

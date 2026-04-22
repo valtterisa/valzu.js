@@ -12,7 +12,7 @@ export function hydrateApp(App: ReactNode, container?: HTMLElement | null) {
   if (root) {
     hydrateRoot(root, App);
   } else {
-    console.error("Valzu: Could not find container element for hydration");
+    console.error("Could not find container element for hydration");
   }
 }
 

@@ -11,3 +11,8 @@ export {
 
 // Legacy utilities (deprecated)
 export { element, renderToString, hydrate } from "./utils";
+
+export {
+  revalidateTag,
+  revalidatePath,
+} from "./server";

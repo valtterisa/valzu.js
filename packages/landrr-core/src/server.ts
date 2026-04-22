@@ -1,157 +1,341 @@
-#!/usr/bin/env node
-import http from "http";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath, pathToFileURL } from "url";
-import { renderToString } from "./utils";
+export type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JsonValue[]
+  | { [key: string]: JsonValue };
 
-export interface ServerOptions {
-  pagesDir?: string;
-  // publicDir is now removed since index.html is at the root.
-  port?: number;
+/**
+ * Context object passed to `getServerData(ctx)` in route modules.
+ *
+ * `url` is the resolved request pathname.
+ * `params` and `query` are normalized string maps.
+ * `request` is optional to support build-time or non-request execution paths.
+ */
+export interface LoaderContext {
+  url: string;
+  params: Record<string, string>;
+  query: Record<string, string>;
+  request?: Request;
 }
 
 /**
- * Legacy server for backward compatibility
- * @deprecated Use the Vite SSR setup instead
+ * Route-level rendering and caching hints used by SSR/SSG runtime.
+ *
+ * - `mode`: choose per-request SSR or build-time SSG behavior.
+ * - `revalidate`: regeneration TTL in seconds.
+ * - `cache`: cache policy hint for the runtime.
+ * - `tags`: invalidation groups used by revalidation helpers.
  */
-export function useServer(options?: ServerOptions): void {
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-  const cwd: string = process.cwd();
+export interface PageRuntimeConfig {
+  mode?: "ssr" | "ssg";
+  revalidate?: number;
+  cache?: "no-store" | "force-cache";
+  tags?: string[];
+}
 
-  const compiledPagesDir: string = options?.pagesDir
-    ? path.resolve(options.pagesDir)
-    : path.resolve(cwd, ".landr", "pages");
+type SerializableRecord = Record<string, JsonValue>;
 
-  if (!fs.existsSync(compiledPagesDir)) {
-    console.error(
-      `❌ Compiled pages directory not found at ${compiledPagesDir}. Please run your build process to compile your pages.`
-    );
-    process.exit(1);
+interface CacheEntry {
+  value: string;
+  expiresAt: number | null;
+  tags: string[];
+}
+
+/**
+ * Runtime cache contract used by `@landrr/core/server` helpers.
+ */
+export interface CacheStore {
+  get(key: string): Promise<string | null>;
+  set(
+    key: string,
+    value: string,
+    options?: { ttl?: number; tags?: string[] }
+  ): Promise<void>;
+  delete(key: string): Promise<void>;
+  invalidateTag(tag: string): Promise<void>;
+  invalidatePath(path: string): Promise<void>;
+}
+
+/**
+ * Default in-memory cache backend used by the runtime.
+ */
+class InMemoryCacheStore implements CacheStore {
+  private entries = new Map<string, CacheEntry>();
+  private tagIndex = new Map<string, Set<string>>();
+
+  async get(key: string): Promise<string | null> {
+    const entry = this.entries.get(key);
+    if (!entry) return null;
+    if (entry.expiresAt !== null && Date.now() > entry.expiresAt) {
+      await this.delete(key);
+      return null;
+    }
+    return entry.value;
   }
 
-  const pageFiles: string[] = fs
-    .readdirSync(compiledPagesDir)
-    .filter((file) => file.endsWith(".js"));
-
-  const routes: { [route: string]: string } = {};
-  pageFiles.forEach((file) => {
-    const name: string = file.replace(/\.js$/, "");
-    const route: string = name === "index" ? "/" : `/${name}`;
-    routes[route] = file;
-  });
-
-  const server = http.createServer(async (req, res) => {
-    const reqUrl: string = req.url || "/";
-
-    // Serve the client bundle.
-    if (reqUrl === "/client.js") {
-      const clientFile: string = path.resolve(cwd, ".landr", "client.js");
-      fs.readFile(clientFile, (err, data) => {
-        if (err) {
-          res.statusCode = 404;
-          res.end("Not Found");
-        } else {
-          res.setHeader("Content-Type", "application/javascript");
-          res.end(data);
-        }
-      });
-      return;
+  async set(
+    key: string,
+    value: string,
+    options?: { ttl?: number; tags?: string[] }
+  ): Promise<void> {
+    const ttl = options?.ttl;
+    const tags = options?.tags ?? [];
+    const expiresAt = typeof ttl === "number" ? Date.now() + ttl * 1000 : null;
+    this.entries.set(key, { value, expiresAt, tags });
+    for (const tag of tags) {
+      const keys = this.tagIndex.get(tag) ?? new Set<string>();
+      keys.add(key);
+      this.tagIndex.set(tag, keys);
     }
+  }
 
-    // If you had other static assets before in the public directory,
-    // you may need to update or remove this block if they're no longer used.
-    const staticPath: string = path.resolve(cwd, "." + reqUrl);
-    if (fs.existsSync(staticPath) && fs.statSync(staticPath).isFile()) {
-      let contentType: string = "text/plain";
-      const ext: string = path.extname(staticPath);
-      if (ext === ".html") contentType = "text/html";
-      else if (ext === ".css") contentType = "text/css";
-      else if (ext === ".js") contentType = "application/javascript";
-      fs.readFile(staticPath, (err, data) => {
-        if (err) {
-          res.statusCode = 500;
-          res.end("Internal Server Error");
-        } else {
-          res.setHeader("Content-Type", contentType);
-          res.end(data);
-        }
-      });
-      return;
+  async delete(key: string): Promise<void> {
+    const entry = this.entries.get(key);
+    if (!entry) return;
+    this.entries.delete(key);
+    for (const tag of entry.tags) {
+      const keys = this.tagIndex.get(tag);
+      if (!keys) continue;
+      keys.delete(key);
+      if (keys.size === 0) this.tagIndex.delete(tag);
     }
+  }
 
-    // Handle dynamic routes.
-    if (routes[reqUrl] !== undefined) {
-      try {
-        const file: string = routes[reqUrl];
-        const modulePath: string = path.join(compiledPagesDir, file);
-        const moduleUrl: string = pathToFileURL(modulePath).href;
-        const importedModule = await import(moduleUrl);
-        const Component = importedModule.default;
-        if (!Component) {
-          throw new Error(`Component not found in ${file}`);
-        }
-        const vnode: any = await Component();
-        const appHtml: string = renderToString(vnode);
-
-        // Read the HTML template from the project root.
-        const templatePath: string = path.resolve(cwd, "index.html");
-        let template: string = fs.readFileSync(templatePath, "utf8");
-        template = template.replace(
-          '<div id="app"></div>',
-          `<div id="app">${appHtml}</div>`
-        );
-        template = template.replace(
-          "</body>",
-          `<script type="module" src="/client.js"></script></body>`
-        );
-        res.setHeader("Content-Type", "text/html");
-        res.end(template);
-      } catch (error) {
-        console.error("❌ Error rendering route:", error);
-        res.statusCode = 500;
-        res.end("Internal Server Error");
-      }
-      return;
+  async invalidateTag(tag: string): Promise<void> {
+    const keys = this.tagIndex.get(tag);
+    if (!keys) return;
+    for (const key of keys) {
+      await this.delete(key);
     }
+    this.tagIndex.delete(tag);
+  }
 
-    res.statusCode = 404;
-    res.end("Not Found");
-  });
+  async invalidatePath(path: string): Promise<void> {
+    await this.delete(`path:${path}`);
+  }
+}
 
-  const port: number = options?.port || Number(process.env.PORT) || 3000;
-  server.listen(port, () => {
-    console.log(`✅ Production server running on http://localhost:${port}`);
-  });
+const globalCacheStore = new InMemoryCacheStore();
+
+/**
+ * Returns the active cache store instance used by revalidation helpers.
+ */
+export function getCacheStore(): CacheStore {
+  return globalCacheStore;
 }
 
 /**
- * Creates an SSR handler for Express.js
- * Use this with Vite in production for React-based SSR
+ * Revalidate all cache entries linked to a tag.
+ *
+ * @param tag Tag identifier used by cached entries.
+ * @returns Promise that resolves when invalidation is complete.
  */
-export function createSSRHandler(options: {
-  template: string;
-  render: (url: string) => Promise<{ html: string; head: string }>;
-}) {
-  return async (req: any, res: any) => {
-    try {
-      const url = req.originalUrl || req.url;
-      const { html, head } = await options.render(url);
+export async function revalidateTag(tag: string): Promise<void> {
+  await globalCacheStore.invalidateTag(tag);
+}
 
-      let finalHtml = options.template;
-      
-      // Replace the head placeholder with collected SEO tags
-      finalHtml = finalHtml.replace("<!--head-tags-->", head);
-      
-      // Replace the app placeholder with rendered HTML
-      finalHtml = finalHtml.replace("<!--ssr-outlet-->", html);
+/**
+ * Revalidate cache entry associated with a path key.
+ *
+ * @param path Path key used by the cache backend.
+ * @returns Promise that resolves when invalidation is complete.
+ */
+export async function revalidatePath(path: string): Promise<void> {
+  await globalCacheStore.invalidatePath(path);
+}
 
-      res.status(200).set({ "Content-Type": "text/html" }).end(finalHtml);
-    } catch (e) {
-      console.error("SSR Error:", e);
-      res.status(500).end("Internal Server Error");
+/**
+ * Validates and serializes a value for inline hydration payload usage.
+ *
+ * Rejects unsupported values (`undefined`, `function`, `symbol`, `bigint`) and
+ * circular structures. Escapes script-sensitive characters (`<`, U+2028, U+2029)
+ * to keep inline `<script>` payloads safe.
+ *
+ * @param value Value to serialize.
+ * @throws Error when value is non-serializable.
+ * @returns Escaped JSON string safe for inline embedding.
+ */
+export function safeSerialize(value: unknown): string {
+  const validate = (current: unknown, seen = new Set<unknown>()): void => {
+    if (current === null) return;
+    const valueType = typeof current;
+    if (valueType === "string" || valueType === "number" || valueType === "boolean") {
+      return;
+    }
+    if (valueType === "undefined" || valueType === "function" || valueType === "symbol" || valueType === "bigint") {
+      throw new Error("Non-serializable value returned from getServerData");
+    }
+    if (seen.has(current)) {
+      throw new Error("Circular value returned from getServerData");
+    }
+    seen.add(current);
+    if (Array.isArray(current)) {
+      for (const item of current) validate(item, seen);
+      seen.delete(current);
+      return;
+    }
+    if (current instanceof Date) {
+      seen.delete(current);
+      return;
+    }
+    if (valueType === "object") {
+      for (const item of Object.values(current as Record<string, unknown>)) {
+        validate(item, seen);
+      }
+      seen.delete(current);
     }
   };
+
+  validate(value);
+  return JSON.stringify(value).replace(/</g, "\\u003c").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
+}
+
+/**
+ * Route module contract consumed by SSR loader/runtime helpers.
+ */
+export interface RouteModule {
+  default?: unknown;
+  getServerData?: (ctx: LoaderContext) => Promise<unknown> | unknown;
+  ssr?: PageRuntimeConfig;
+}
+
+/**
+ * Executes `getServerData` when available and normalizes output shape.
+ *
+ * If no loader exists, returns `{}`.
+ * If loader returns a non-object, wraps value as `{ data: value }`.
+ * Uses `safeSerialize` validation to enforce hydration-safe payloads.
+ *
+ * @param routeModule Matched route module.
+ * @param ctx Loader execution context.
+ * @throws Error when loader output is non-serializable.
+ * @returns Serializable record used for SSR hydration.
+ */
+export async function runServerDataLoader(
+  routeModule: RouteModule,
+  ctx: LoaderContext
+): Promise<SerializableRecord> {
+  if (!routeModule.getServerData) return {};
+  const data = await routeModule.getServerData(ctx);
+  const normalized =
+    data && typeof data === "object" && !Array.isArray(data)
+      ? (data as Record<string, unknown>)
+      : { data };
+  safeSerialize(normalized);
+  return normalized as SerializableRecord;
+}
+
+export interface RenderDocumentResult {
+  html: string;
+  head?: string;
+}
+
+/**
+ * Calls the runtime render function with a consistent signature.
+ *
+ * @param options Render function and invocation inputs.
+ * @returns Rendered HTML/head payload from the runtime renderer.
+ */
+export async function renderDocument(options: {
+  render: (
+    url: string,
+    props?: Record<string, unknown>
+  ) => Promise<RenderDocumentResult> | RenderDocumentResult;
+  url: string;
+  props?: Record<string, unknown>;
+}) {
+  return options.render(options.url, options.props);
+}
+
+/**
+ * Mapping of pathname keys to route modules.
+ */
+export type RouteModuleMap = Record<string, RouteModule>;
+
+/**
+ * Resolves route module by exact path, normalized path, then wildcard.
+ *
+ * Match priority:
+ * 1) exact pathname
+ * 2) pathname without trailing slash
+ * 3) wildcard (`"*"`), if present
+ *
+ * @param pathname Request pathname.
+ * @param routes Route map keyed by pathname.
+ * @throws Error when no route matches.
+ * @returns Matched route key, module, and params object.
+ */
+export function resolveRouteModule(
+  pathname: string,
+  routes: RouteModuleMap
+): { route: string; module: RouteModule; params: Record<string, string> } {
+  if (routes[pathname]) {
+    return { route: pathname, module: routes[pathname], params: {} };
+  }
+  if (pathname !== "/" && routes[pathname.replace(/\/$/, "")]) {
+    const normalized = pathname.replace(/\/$/, "");
+    return { route: normalized, module: routes[normalized], params: {} };
+  }
+  if (routes["*"]) {
+    return { route: "*", module: routes["*"], params: { wildcard: pathname } };
+  }
+  throw new Error(`No route module found for "${pathname}"`);
+}
+
+/**
+ * Webhook invalidation mapping contract.
+ */
+export interface WebhookConfig {
+  secretEnvKey: string;
+  mapPayloadToTags?: (payload: unknown) => string[];
+  mapPayloadToPaths?: (payload: unknown) => string[];
+}
+
+/**
+ * Helper for declarative webhook invalidation configuration.
+ *
+ * @param config Webhook invalidation configuration.
+ * @returns The same config object for typed composition.
+ */
+export function defineWebhookInvalidation(config: WebhookConfig) {
+  return config;
+}
+
+/**
+ * Validates webhook secret and triggers tag/path revalidation.
+ *
+ * Expects JSON body with `secret`. Secret is validated against
+ * `process.env[config.secretEnvKey]`. Tag/path targets are computed from
+ * mapper callbacks and revalidated sequentially.
+ *
+ * @param request Incoming webhook request.
+ * @param config Webhook invalidation behavior.
+ * @returns JSON response with success metadata, or 401 when unauthorized.
+ */
+export async function handleWebhookInvalidation(
+  request: Request,
+  config: WebhookConfig
+): Promise<Response> {
+  const payload = await request.json().catch(() => null);
+  const secret =
+    payload && typeof payload === "object" && payload !== null
+      ? (payload as Record<string, unknown>).secret
+      : undefined;
+  if (secret !== process.env[config.secretEnvKey]) {
+    return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
+      status: 401,
+      headers: { "content-type": "application/json" },
+    });
+  }
+  const tags = config.mapPayloadToTags?.(payload) ?? [];
+  const paths = config.mapPayloadToPaths?.(payload) ?? [];
+  for (const tag of tags) await revalidateTag(tag);
+  for (const path of paths) await revalidatePath(path);
+  return new Response(JSON.stringify({ ok: true, tags, paths }), {
+    status: 200,
+    headers: { "content-type": "application/json" },
+  });
 }
 
