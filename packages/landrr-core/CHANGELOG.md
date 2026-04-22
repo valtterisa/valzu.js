@@ -1,5 +1,11 @@
 # @landrr/core
 
+## 7.1.0
+
+### Minor Changes
+
+- chaanges
+
 ## 7.0.0
 
 ### Major Changes

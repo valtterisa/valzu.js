@@ -1,5 +1,16 @@
 # @landrr/blocks
 
+## 7.0.0
+
+### Minor Changes
+
+- chaanges
+
+### Patch Changes
+
+- Updated dependencies
+  - @landrr/core@7.1.0
+
 ## 6.0.0
 
 ### Major Changes
