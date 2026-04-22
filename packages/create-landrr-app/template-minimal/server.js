@@ -41,15 +41,20 @@ function getContentType(filePath) {
 
 async function createRuntime() {
   let vite;
+  let viteOrigin = "";
   if (!isProduction) {
     const { createServer } = await import("vite");
     vite = await createServer({
-      server: { port: devAssetPort, strictPort: true },
+      server: { port: devAssetPort, strictPort: false },
       appType: "custom",
     });
     await vite.listen();
+    const addressInfo = vite.httpServer?.address();
+    const resolvedPort =
+      addressInfo && typeof addressInfo === "object" ? addressInfo.port : devAssetPort;
+    viteOrigin = `http://127.0.0.1:${resolvedPort}`;
   }
-  return { vite };
+  return { vite, viteOrigin };
 }
 
 const runtime = await createRuntime();
@@ -72,7 +77,7 @@ app.all("*", async ({ request }) => {
   const pathname = url.pathname;
 
   if (!isProduction && isAssetRequest(pathname)) {
-    return fetch(`http://127.0.0.1:${devAssetPort}${url.pathname}${url.search}`);
+    return fetch(`${runtime.viteOrigin}${url.pathname}${url.search}`);
   }
 
   if (isProduction && isAssetRequest(pathname)) {
@@ -94,8 +99,8 @@ app.all("*", async ({ request }) => {
       : await fs.readFile(path.join(__dirname, "dist/client/index.html"), "utf-8");
     const transformedTemplate = !isProduction
       ? (await runtime.vite.transformIndexHtml(pathname, template))
-          .replaceAll('"/@vite/', `"http://127.0.0.1:${devAssetPort}/@vite/`)
-          .replaceAll('"/src/', `"http://127.0.0.1:${devAssetPort}/src/`)
+          .replaceAll('"/@vite/', `"${runtime.viteOrigin}/@vite/`)
+          .replaceAll('"/src/', `"${runtime.viteOrigin}/src/`)
       : template;
     const modules = !isProduction
       ? await runtime.vite.ssrLoadModule("/src/server-modules.ts")
