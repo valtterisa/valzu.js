@@ -4,6 +4,7 @@ import fs from "node:fs/promises";
 import { createServer } from "node:http";
 import path from "node:path";
 import { Readable } from "node:stream";
+import { fileURLToPath } from "node:url";
 
 export function createServerApp() {
   return new Elysia();
@@ -286,6 +287,11 @@ export async function startLandrrServer(options: {
   process.on("beforeExit", shutdown);
 
   return { app, runtime, server, shutdown };
+}
+
+export async function startLandrrServerFromImportMeta(importMetaUrl: string) {
+  const rootDir = path.dirname(fileURLToPath(importMetaUrl));
+  return startLandrrServer({ rootDir });
 }
 
 export type JsonValue =
