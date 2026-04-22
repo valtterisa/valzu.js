@@ -1,14 +1,23 @@
 {
   "name": "create-landrr-app",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "bin": {
     "create-landrr-app": "./bin/create-landrr-app"
   },
+  "files": [
+    "bin",
+    "dist",
+    "template",
+    "template-minimal",
+    "template-landing",
+    "template-product"
+  ],
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "prepack": "pnpm run build"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
